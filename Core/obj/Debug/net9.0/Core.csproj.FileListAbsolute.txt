@@ -1,0 +1,12 @@
+/Users/kevin/Documents/Projects/MiniStore/Core/bin/Debug/net9.0/Core.deps.json
+/Users/kevin/Documents/Projects/MiniStore/Core/bin/Debug/net9.0/Core.dll
+/Users/kevin/Documents/Projects/MiniStore/Core/bin/Debug/net9.0/Core.pdb
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.AssemblyInfoInputs.cache
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.AssemblyInfo.cs
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.csproj.CoreCompileInputs.cache
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.dll
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/refint/Core.dll
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.pdb
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/ref/Core.dll
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.csproj.AssemblyReference.cache

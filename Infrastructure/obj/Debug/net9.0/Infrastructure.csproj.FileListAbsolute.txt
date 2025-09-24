@@ -1,0 +1,17 @@
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Infrastructure.deps.json
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Infrastructure.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Infrastructure.pdb
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Application.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Core.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Core.pdb
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/bin/Debug/net9.0/Application.pdb
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.csproj.AssemblyReference.cache
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.AssemblyInfoInputs.cache
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.AssemblyInfo.cs
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.csproj.CoreCompileInputs.cache
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastr.15EFFBFE.Up2Date
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/refint/Infrastructure.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.pdb
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/ref/Infrastructure.dll

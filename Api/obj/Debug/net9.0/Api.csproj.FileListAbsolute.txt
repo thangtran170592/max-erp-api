@@ -185,3 +185,4 @@
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Microsoft.EntityFrameworkCore.Proxies.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/FluentValidation.AspNetCore.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/FluentValidation.DependencyInjectionExtensions.dll
+/Users/kevin/Documents/Projects/MiniStore/Api/obj/Debug/net9.0/Api.sourcelink.json

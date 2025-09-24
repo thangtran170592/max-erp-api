@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using Application.Common.Helpers;
+using Application.Common.Security;
 using Application.Dtos;
 using Application.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -21,7 +22,7 @@ namespace Api.Controllers
             _logger = logger;
         }
 
-        [Authorize(Policy = "...")]
+        [Authorize(Policy = $"PERMISSION:{Permission.ViewChats}")]
         [HttpGet("users")]
         public async Task<ActionResult<ApiResponse<IEnumerable<UserResponseDto>>>> GetUsers()
         {
@@ -52,13 +53,15 @@ namespace Api.Controllers
             }
         }
 
+        [Authorize(Policy = $"PERMISSION:{Permission.CreateChats}")]
         [HttpPost("messages")]
-        public async Task<IActionResult> SendMessage([FromBody] SendMessageRequestDto request)
+        public async Task<IActionResult> SendMessage([FromBody] MessageRequestDto request)
         {
             try
             {
                 var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var messages = await _chatService.SendMessage(Guid.Parse(sid.Value), request.ReceiverId, request.RoomId, request.Content, request.Type);
+                request.SenderId = Guid.Parse(sid.Value);
+                var messages = await _chatService.SendMessage(request);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(messages));
             }
             catch (Exception ex)
@@ -68,7 +71,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("rooms")]
-        public async Task<IActionResult> CreateRoom([FromBody] CreateRoomRequestDto request)
+        public async Task<ActionResult<RoomResponseDto>> CreateRoom([FromBody] CreateRoomRequestDto request)
         {
             try
             {
@@ -83,7 +86,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("rooms")]
-        public async Task<IActionResult> GetRooms()
+        public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetRooms()
         {
             try
             {

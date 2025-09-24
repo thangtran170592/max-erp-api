@@ -15,3 +15,4 @@
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/refint/Infrastructure.dll
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.pdb
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/ref/Infrastructure.dll
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.sourcelink.json

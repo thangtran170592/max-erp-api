@@ -10,3 +10,4 @@
 /Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.pdb
 /Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/ref/Core.dll
 /Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.csproj.AssemblyReference.cache
+/Users/kevin/Documents/Projects/MiniStore/Core/obj/Debug/net9.0/Core.sourcelink.json

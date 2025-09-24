@@ -1,4 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using Application.Common.Helpers;
+using Application.Dtos;
 using Application.IServices;
+using Core.Constants;
 using Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -14,15 +18,23 @@ public class ChatHub : Hub
     {
         _chatService = chatService;
         _logger = logger;
-        _logger.LogDebug("ChatHub constructed");
     }
 
     public override async Task OnConnectedAsync()
     {
         try
         {
-            _logger.LogDebug("Attempting to connect client");
-            _logger.LogInformation($"Client Connected: {Context.ConnectionId}");
+            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+            var senderName = Context.User?.Identity?.Name ?? "Unknown";
+            if (!string.IsNullOrEmpty(senderSid))
+            {
+                var connections = ConnectionMapping.GetConnections(senderSid!);
+                if (connections is not null && connections.Any())
+                {
+                    _logger.LogWarning($"User {senderSid} already has {connections.Count()} connections");
+                }
+                ConnectionMapping.Add(senderSid, Context.ConnectionId);
+            }
             await base.OnConnectedAsync();
             _logger.LogDebug("Client successfully connected");
         }
@@ -35,42 +47,75 @@ public class ChatHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _logger.LogInformation($"Client Disconnected: {Context.ConnectionId}");
-        Console.WriteLine($"Client Disconnected: {Context.ConnectionId}");
+        var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+        var senderName = Context.User?.Identity?.Name ?? "Unknown";
+        _logger.LogInformation($"User  id: {senderSid}, name: {senderName} disconnected {Context.ConnectionId}");
+        if (!string.IsNullOrEmpty(senderSid))
+        {
+            ConnectionMapping.Remove(senderSid, Context.ConnectionId);
+        }
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task JoinUser(int userId)
+    public async Task JoinUser(Guid? receiverId, Guid? roomId)
     {
         try
         {
-            _logger.LogDebug($"Attempting to add user {userId} to group");
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"User-{userId}");
-            _logger.LogInformation($"User {userId} joined group successfully");
+            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+            var senderName = Context.User?.Identity?.Name ?? "Unknown";
+
+            var groupId = string.Empty;
+            if (roomId.HasValue)
+            {
+                groupId = $"Group-{roomId}";
+            }
+            else if (receiverId.HasValue)
+            {
+                groupId = GetPrivateGroupName(Guid.Parse(senderSid!), receiverId!.Value);
+            }
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+            _logger.LogInformation($"User  id: {senderSid}, name: {senderName} joined group {groupId} successfully");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error adding user {userId} to group");
+            _logger.LogError(ex, $"Error adding user to group");
             throw;
         }
     }
 
-    public async Task SendMessage(Guid senderId, Guid? receiverId, Guid? roomId, string content, MessageType type)
+    public async Task SendMessage(MessageRequestDto request)
     {
-        _logger.LogInformation($"Sending message: SenderId={senderId}, ReceiverId={receiverId}, RoomId={roomId}, Type={type}");
-
-        await _chatService.SendMessage(senderId, receiverId, roomId, content, type);
-
-        if (roomId.HasValue)
+        try
         {
-            var roomUsers = await _chatService.GetMessages(roomId, null, null);
-            foreach (var user in roomUsers)
-                await Clients.Group($"User-{user.ReceiverId}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
+            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+            var senderName = Context.User?.Identity?.Name ?? "Unknown";
+
+            _logger.LogInformation($"Sending message: Id={senderSid}, name={senderName}, ReceiverId={request.ReceiverId}, RoomId={request.RoomId}, Type={request.Type}");
+
+            if (string.IsNullOrEmpty(senderSid))
+                throw new HubException("User not authenticated");
+
+            var senderId = Guid.Parse(senderSid);
+            request.SenderId = senderId;
+            request.SenderName = senderName;
+            var sentMessage = await _chatService.SendMessage(request);
+
+            if (request.RoomId.HasValue)
+            {
+                var roomUsers = await _chatService.GetMessages(request.RoomId, null, null);
+                foreach (var user in roomUsers)
+                    await Clients.Group($"Group-{request.RoomId}").SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
+            }
+            else if (request.ReceiverId.HasValue)
+            {
+                var groupName = GetPrivateGroupName(senderId, request.ReceiverId.Value);
+                await Clients.Group(groupName).SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
+            }
         }
-        else if (receiverId.HasValue)
+        catch (Exception ex)
         {
-            await Clients.Group($"User-{receiverId}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
-            await Clients.Group($"User-{senderId}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
+            _logger.LogError(ex, $"Error send message");
+            throw;
         }
     }
 
@@ -86,6 +131,14 @@ public class ChatHub : Hub
         };
 
         foreach (var uid in userIds)
+        {
             await Clients.Group($"User-{uid}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
+        }
+    }
+
+    private string GetPrivateGroupName(Guid sender1, Guid sender2)
+    {
+        var sorted = new[] { sender1, sender2 }.OrderBy(x => x).ToArray();
+        return $"Private-{sorted[0]}-{sorted[1]}";
     }
 }

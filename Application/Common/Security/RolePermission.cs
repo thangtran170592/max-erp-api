@@ -11,12 +11,15 @@ namespace Application.Common.Security
                 Permission.CreateUsers,
                 Permission.UpdateUsers,
                 Permission.ViewSettings,
+                Permission.CreateChats,
                 Permission.ViewRoles,
             ],
 
             [Role.Customer] = [
                 Permission.ViewRoles,
                 Permission.ViewUsers,
+                Permission.ViewChats,
+                Permission.CreateChats,
             ],
 
             [Role.Guest] = [

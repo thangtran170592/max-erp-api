@@ -13,3 +13,4 @@
 /Users/kevin/Documents/Projects/MiniStore/Application/obj/Debug/net9.0/refint/Application.dll
 /Users/kevin/Documents/Projects/MiniStore/Application/obj/Debug/net9.0/Application.pdb
 /Users/kevin/Documents/Projects/MiniStore/Application/obj/Debug/net9.0/ref/Application.dll
+/Users/kevin/Documents/Projects/MiniStore/Application/obj/Debug/net9.0/Application.sourcelink.json

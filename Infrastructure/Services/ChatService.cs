@@ -1,5 +1,6 @@
 using Application.Common.Security;
 using Application.Dtos;
+using Application.IRepositories;
 using Application.IServices;
 using AutoMapper;
 using Core.Entities;
@@ -13,18 +14,21 @@ namespace Infrastructure.Services
     public class ChatService : IChatService
     {
         private readonly ApplicationDbContext _context;
+        private readonly IGenericRepository<Message> _messageRepository;
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+        private readonly IMapper _mapper;
         public ChatService(
             ApplicationDbContext context,
          UserManager<User> userManager,
          RoleManager<IdentityRole<Guid>> roleManager,
+         IGenericRepository<Message> messageRepository,
          IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _messageRepository = messageRepository;
             _mapper = mapper;
         }
 
@@ -52,7 +56,7 @@ namespace Infrastructure.Services
         {
             if (roomId.HasValue)
             {
-                var result = await _context.Messages.Where(m => m.RoomId == roomId.Value).OrderBy(m => m.SentAt).ToListAsync();
+                var result = await _context.Messages.Where(m => m.RoomId == roomId.Value).OrderBy(m => m.CreatedAt).ToListAsync();
                 return result.Select(_mapper.Map<MessageResponseDto>);
             }
 
@@ -62,7 +66,7 @@ namespace Infrastructure.Services
                 var result = await _context.Messages
                     .Where(m => (m.SenderId == userId1 && m.ReceiverId == userId2)
                              || (m.SenderId == userId2 && m.ReceiverId == userId1))
-                    .OrderBy(m => m.SentAt)
+                    .OrderBy(m => m.CreatedAt)
                     .ToListAsync();
                 return result.Select(_mapper.Map<MessageResponseDto>);
             }
@@ -70,11 +74,19 @@ namespace Infrastructure.Services
             return [];
         }
 
-        public async Task<int> SendMessage(Guid senderId, Guid? receiverId, Guid? roomId, string content, MessageType type = MessageType.Text)
+        public async Task<MessageResponseDto?> SendMessage(MessageRequestDto request)
         {
-            var msg = new Message { SenderId = senderId, ReceiverId = receiverId, RoomId = roomId, Content = content, Type = type };
-            _context.Messages.Add(msg);
-            return await _context.SaveChangesAsync();
+            var message = new Message
+            {
+                SenderId = request.SenderId,
+                ReceiverId = request.ReceiverId,
+                RoomId = request.RoomId,
+                Content = request.Content,
+                Type = request.Type
+            };
+            await _messageRepository.AddAsync(message);
+            var resultSave = await _context.SaveChangesAsync();
+            return resultSave > 0 ? _mapper.Map<MessageResponseDto>(message) : null;
         }
 
         public async Task<RoomResponseDto> CreateRoom(string name, Guid adminId, List<Guid> userIds)
@@ -88,7 +100,6 @@ namespace Infrastructure.Services
 
             var room = new Room { Name = name, CreatedBy = adminId };
             _context.Rooms.Add(room);
-            await _context.SaveChangesAsync();
 
             _context.RoomUsers.Add(new RoomUser { RoomId = room.Id, UserId = adminId });
 

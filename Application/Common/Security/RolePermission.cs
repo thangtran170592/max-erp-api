@@ -12,6 +12,7 @@ namespace Application.Common.Security
                 Permission.UpdateUsers,
                 Permission.ViewSettings,
                 Permission.CreateChats,
+                Permission.ViewChats,
                 Permission.ViewRoles,
             ],
 

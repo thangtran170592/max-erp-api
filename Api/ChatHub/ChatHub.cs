@@ -35,6 +35,7 @@ public class ChatHub : Hub
                 }
                 ConnectionMapping.Add(senderSid, Context.ConnectionId);
             }
+            await Clients.All.SendAsync(ChatHubEvent.UserOnline, senderSid);
             await base.OnConnectedAsync();
             _logger.LogDebug("Client successfully connected");
         }
@@ -54,10 +55,11 @@ public class ChatHub : Hub
         {
             ConnectionMapping.Remove(senderSid, Context.ConnectionId);
         }
+        await Clients.All.SendAsync(ChatHubEvent.UserOffline, senderSid);
         await base.OnDisconnectedAsync(exception);
     }
 
-    public async Task JoinUser(Guid? receiverId, Guid? roomId)
+    public async Task JoinUser(Guid? receiverId, Guid? roomId, string? roomName)
     {
         try
         {
@@ -68,10 +70,14 @@ public class ChatHub : Hub
             if (roomId.HasValue)
             {
                 groupId = $"Group-{roomId}";
+                if (!string.IsNullOrEmpty(roomName))
+                {
+                    groupId += $"-{StringHelper.ToFriendlyUrl(roomName)}";
+                }
             }
             else if (receiverId.HasValue)
             {
-                groupId = GetPrivateGroupName(Guid.Parse(senderSid!), receiverId!.Value);
+                groupId = ChatHubHelper.GetGroupName(Guid.Parse(senderSid!), receiverId!.Value);
             }
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
             _logger.LogInformation($"User  id: {senderSid}, name: {senderName} joined group {groupId} successfully");
@@ -81,6 +87,29 @@ public class ChatHub : Hub
             _logger.LogError(ex, $"Error adding user to group");
             throw;
         }
+    }
+
+    public async Task JoinConversation(string conversationId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, conversationId);
+        await Clients.Group(conversationId).SendAsync("UserJoined", Context.UserIdentifier, conversationId);
+    }
+
+    public async Task LeaveConversation(string conversationId)
+    {
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, conversationId);
+        await Clients.Group(conversationId).SendAsync(ChatHubEvent.UserLeft, Context.UserIdentifier, conversationId);
+    }
+
+    public async Task Typing(string conversationId)
+    {
+        await Clients.OthersInGroup(conversationId)
+             .SendAsync(ChatHubEvent.UserTyping, Context.UserIdentifier, conversationId);
+    }
+
+    public async Task SeenMessage(string conversationId, string messageId)
+    {
+        await Clients.Group(conversationId).SendAsync(ChatHubEvent.SeenMessage, Context.UserIdentifier, messageId, DateTime.UtcNow);
     }
 
     public async Task SendMessage(MessageRequestDto request)
@@ -103,12 +132,16 @@ public class ChatHub : Hub
             if (request.RoomId.HasValue)
             {
                 var roomUsers = await _chatService.GetMessages(request.RoomId, null, null);
-                foreach (var user in roomUsers)
-                    await Clients.Group($"Group-{request.RoomId}").SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
+                var groupId = $"Group-{request.RoomId}";
+                if (!string.IsNullOrEmpty(request.RoomName))
+                {
+                    groupId += $"-{StringHelper.ToFriendlyUrl(request.RoomName)}";
+                }
+                await Clients.Group(groupId).SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
             }
             else if (request.ReceiverId.HasValue)
             {
-                var groupName = GetPrivateGroupName(senderId, request.ReceiverId.Value);
+                var groupName = ChatHubHelper.GetGroupName(senderId, request.ReceiverId.Value);
                 await Clients.Group(groupName).SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
             }
         }
@@ -119,26 +152,27 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task SendBroadcast(Guid senderId, string content, MessageType type, string targetType, Guid? targetId)
+    public async Task SendBroadcast(BroadcastRequestDto request)
     {
-        await _chatService.SendBroadcast(senderId, content, type, targetType, targetId);
-
-        List<Guid> userIds = targetType switch
+        var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+        var senderName = Context.User?.Identity?.Name ?? "Unknown";
+        request.SenderId = Guid.Parse(senderSid!);
+        request.SenderName = senderName;
+        var userIds = await _chatService.SendBroadcast(request);
+        if (userIds is not null && userIds.Any())
         {
-            "All" => await _chatService.GetChatAbleUsers(senderId).ContinueWith(t => t.Result.Select(u => u.Id).ToList()),
-            "Group" => await _chatService.GetMessages(targetId, null, null).ContinueWith(t => t.Result.Select(m => m.ReceiverId ?? Guid.NewGuid()).ToList()),
-            _ => []
-        };
-
-        foreach (var uid in userIds)
-        {
-            await Clients.Group($"User-{uid}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
+            var message = new MessageResponseDto
+            {
+                SenderId = request.SenderId,
+                Content = request.Content,
+                SenderName = senderName,
+                Type = request.Type
+            };
+            foreach (var uid in userIds)
+            {
+                message.ReceiverId = uid;
+                await Clients.Group($"Private-{senderSid}-{uid}").SendAsync(ChatHubEvent.ReceiveMessage, message);
+            }
         }
-    }
-
-    private string GetPrivateGroupName(Guid sender1, Guid sender2)
-    {
-        var sorted = new[] { sender1, sender2 }.OrderBy(x => x).ToArray();
-        return $"Private-{sorted[0]}-{sorted[1]}";
     }
 }

@@ -1,3 +1,4 @@
+using Application.Common.Helpers;
 using Application.Common.Security;
 using Application.Dtos;
 using Application.IRepositories;
@@ -15,6 +16,9 @@ namespace Infrastructure.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IGenericRepository<Message> _messageRepository;
+        private readonly IGenericRepository<Room> _roomRepository;
+        private readonly IGenericRepository<RoomUser> _roomUserRepository;
+        private readonly IGenericRepository<Broadcast> _broadcastRepository;
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IMapper _mapper;
@@ -23,12 +27,18 @@ namespace Infrastructure.Services
          UserManager<User> userManager,
          RoleManager<IdentityRole<Guid>> roleManager,
          IGenericRepository<Message> messageRepository,
+         IGenericRepository<Room> roomRepository,
+         IGenericRepository<RoomUser> roomUserRepository,
+         IGenericRepository<Broadcast> broadcastRepository,
          IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _messageRepository = messageRepository;
+            _roomRepository = roomRepository;
+            _roomUserRepository = roomUserRepository;
+            _broadcastRepository = broadcastRepository;
             _mapper = mapper;
         }
 
@@ -56,19 +66,16 @@ namespace Infrastructure.Services
         {
             if (roomId.HasValue)
             {
-                var result = await _context.Messages.Where(m => m.RoomId == roomId.Value).OrderBy(m => m.CreatedAt).ToListAsync();
-                return result.Select(_mapper.Map<MessageResponseDto>);
+                var result = await _messageRepository.FindManyAsync(m => m.RoomId == roomId.Value);
+                return result.OrderBy(m => m.CreatedAt).Select(_mapper.Map<MessageResponseDto>);
             }
 
             if (userId1.HasValue && userId2.HasValue)
             {
+                var result = await _messageRepository.FindManyAsync(m => (m.SenderId == userId1 && m.ReceiverId == userId2)
+                             || (m.SenderId == userId2 && m.ReceiverId == userId1));
 
-                var result = await _context.Messages
-                    .Where(m => (m.SenderId == userId1 && m.ReceiverId == userId2)
-                             || (m.SenderId == userId2 && m.ReceiverId == userId1))
-                    .OrderBy(m => m.CreatedAt)
-                    .ToListAsync();
-                return result.Select(_mapper.Map<MessageResponseDto>);
+                return result.OrderBy(m => m.CreatedAt).Select(_mapper.Map<MessageResponseDto>);
             }
 
             return [];
@@ -89,24 +96,33 @@ namespace Infrastructure.Services
             return resultSave > 0 ? _mapper.Map<MessageResponseDto>(message) : null;
         }
 
-        public async Task<RoomResponseDto> CreateRoom(string name, Guid adminId, List<Guid> userIds)
+        public async Task<RoomResponseDto?> ValidateRoom(string roomCode, bool isGroup)
         {
-            var user = await _userManager.FindByIdAsync(adminId.ToString());
+            var room = await _roomRepository.FindOneAsync(x => x.RoomCode.Equals(roomCode) && x.IsGroup == isGroup);
+            return room is not null ? _mapper.Map<RoomResponseDto>(room) : null;
+        }
+
+        public async Task<RoomResponseDto> CreateRoom(RoomRequestDto request)
+        {
+            var user = await _userManager.FindByIdAsync(request.HostId);
             var roles = await _userManager.GetRolesAsync(user!);
             if (!roles.Contains(Role.Admin))
             {
                 throw new Exception("Only admin can create room");
             }
 
-            var room = new Room { Name = name, CreatedBy = adminId };
-            _context.Rooms.Add(room);
+            var room = _mapper.Map<Room>(request);
+            var hostId = Guid.Parse(request.HostId);
+            room.RoomCode = ChatHubHelper.SetRoomCode(hostId, request.UserIds[0], request.Name, request.IsGroup);
 
-            _context.RoomUsers.Add(new RoomUser { RoomId = room.Id, UserId = adminId });
+            await _roomRepository.AddAsync(room);
 
-            foreach (var uid in userIds)
-            {
-                _context.RoomUsers.Add(new RoomUser { RoomId = room.Id, UserId = uid });
-            }
+            await _roomUserRepository.AddAsync(new RoomUser { RoomId = room.Id, UserId = hostId });
+
+            var roomUsers = new List<RoomUser>();
+            roomUsers.AddRange(request.UserIds.Select(u => new RoomUser { RoomId = room.Id, UserId = u }));
+
+            await _roomUserRepository.AddRangeAsync(roomUsers);
 
             await _context.SaveChangesAsync();
             return _mapper.Map<RoomResponseDto>(room);
@@ -121,24 +137,31 @@ namespace Infrastructure.Services
             return result.Select(_mapper.Map<RoomResponseDto>);
         }
 
-        public async Task<int> SendBroadcast(Guid senderId, string content, MessageType type, string targetType, Guid? targetId)
+        public async Task<List<Guid>> SendBroadcast(BroadcastRequestDto request)
         {
-            var broadcast = new Broadcast { SenderId = senderId, Content = content, Type = type, TargetType = targetType, TargetId = targetId };
-            _context.Broadcasts.Add(broadcast);
+            var broadcast = _mapper.Map<Broadcast>(request);
+            await _broadcastRepository.AddAsync(broadcast);
 
-            List<Guid> userIds = targetType switch
+            List<Guid> userIds = request.TargetType switch
             {
-                "All" => await _context.Users.Where(u => u.Id != senderId).Select(u => u.Id).ToListAsync(),
-                "Group" => await _context.RoomUsers.Where(r => r.RoomId == targetId).Select(r => r.UserId).ToListAsync(),
-                _ => new List<Guid>()
+                TargetType.All => await _context.Users.Where(user => user.Id != request.SenderId).Select(user => user.Id).ToListAsync(),
+                TargetType.Group => await _context.RoomUsers.Where(room => room.RoomId == request.TargetId).Select(room => room.UserId).ToListAsync(),
+                _ => []
             };
 
-            foreach (var uid in userIds)
+            IEnumerable<Message> messages = userIds.Select(uid =>
+            new Message
             {
-                _context.Messages.Add(new Message { SenderId = senderId, ReceiverId = uid, Content = content, Type = type });
-            }
-
-            return await _context.SaveChangesAsync();
+                SenderId = request.SenderId,
+                ReceiverId = uid,
+                Content = request.Content,
+                Type = request.Type,
+                RoomId = request.TargetType == TargetType.Group ? request.TargetId : null,
+                SenderName = request.SenderName,
+            });
+            await _messageRepository.AddRangeAsync(messages);
+            await _context.SaveChangesAsync();
+            return userIds;
         }
     }
 }

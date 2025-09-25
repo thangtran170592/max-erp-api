@@ -8,8 +8,9 @@ namespace Application.IServices
         Task<IEnumerable<UserResponseDto>> GetChatAbleUsers(Guid userId);
         Task<IEnumerable<MessageResponseDto>> GetMessages(Guid? roomId, Guid? userId1, Guid? userId2);
         Task<MessageResponseDto?> SendMessage(MessageRequestDto request);
-        Task<RoomResponseDto> CreateRoom(string name, Guid adminId, List<Guid> userIds);
+        Task<RoomResponseDto?> ValidateRoom(string roomCode, bool isGroup);
+        Task<RoomResponseDto> CreateRoom(RoomRequestDto request);
         Task<IEnumerable<RoomResponseDto>> GetUserRooms(Guid userId);
-        Task<int> SendBroadcast(Guid senderId, string content, MessageType type, string targetType, Guid? targetId);
+        Task<List<Guid>> SendBroadcast(BroadcastRequestDto request);
     }
 }

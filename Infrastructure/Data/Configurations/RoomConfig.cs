@@ -10,6 +10,8 @@ namespace Infrastructure.Data.Configurations
         {
             builder.ToTable("Rooms");
             builder.HasKey(c => c.Id);
+            builder.HasIndex(c => c.RoomCode)
+                .IsUnique();
 
             builder
                 .HasOne(r => r.Creator)

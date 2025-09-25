@@ -10,6 +10,9 @@ namespace Infrastructure.Data.Configurations
         {
             builder.ToTable("Broadcasts");
             builder.HasKey(e => e.Id);
+            builder.Property(e => e.TargetType)
+                .HasConversion<int>()
+                .IsRequired();
             builder
                 .HasOne(b => b.Sender)
                 .WithMany()

@@ -7,7 +7,7 @@ namespace Core.Entities
         public Guid SenderId { get; set; }
         public string Content { get; set; } = null!;
         public MessageType Type { get; set; } = MessageType.Text;
-        public string TargetType { get; set; } = "All"; // All, Department, Group
+        public TargetType TargetType { get; set; } = TargetType.All;
         public Guid? TargetId { get; set; } // DepartmentId / RoomId / null if All
         public virtual User Sender { get; set; } = null!;
     }

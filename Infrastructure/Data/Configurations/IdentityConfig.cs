@@ -24,7 +24,7 @@ namespace Infrastructure.Data.Configurations
             builder.Property(u => u.OrderNumber)
                 .ValueGeneratedOnAdd()
                 .UseIdentityColumn()
-                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);;
+                .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
 
             builder.Property(u => u.AccountStatus)
                 .HasConversion<int>()

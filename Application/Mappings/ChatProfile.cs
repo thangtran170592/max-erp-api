@@ -10,6 +10,8 @@ namespace Application.Mappings
         {
             CreateMap<Message, MessageResponseDto>();
             CreateMap<Room, RoomResponseDto>();
+            CreateMap<RoomRequestDto, Room>();
+            CreateMap<BroadcastRequestDto, Broadcast>();
         }
     }
 }

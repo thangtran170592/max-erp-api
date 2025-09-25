@@ -38,13 +38,13 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("messages/{withUserId}")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponseDto>>>> GetMessages(Guid withUserId)
+        [HttpPost("history-messages")]
+        public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponseDto>>>> HistoryMessages(HistoryMessagesRequestDto request)
         {
             try
             {
                 var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var messages = await _chatService.GetMessages(null, Guid.Parse(sid.Value), withUserId);
+                var messages = await _chatService.GetMessages(request.RoomId, Guid.Parse(sid.Value), request.CustomerId);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(messages));
             }
             catch (Exception ex)
@@ -71,12 +71,20 @@ namespace Api.Controllers
         }
 
         [HttpPost("rooms")]
-        public async Task<ActionResult<RoomResponseDto>> CreateRoom([FromBody] CreateRoomRequestDto request)
+        public async Task<ActionResult<RoomResponseDto>> CreateRoom([FromBody] RoomRequestDto request)
         {
             try
             {
+                if (!string.IsNullOrEmpty(request.RoomCode))
+                {
+                    var findRoom = await _chatService.ValidateRoom(request.RoomCode, request.IsGroup);
+                    if (findRoom is not null)
+                    {
+                        return Ok(ApiResponseHelper.CreateSuccessResponse(findRoom));
+                    }
+                }
                 var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var room = await _chatService.CreateRoom(request.Name, Guid.Parse(sid.Value), request.UserIds);
+                var room = await _chatService.CreateRoom(request);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(room));
             }
             catch (Exception ex)
@@ -101,12 +109,15 @@ namespace Api.Controllers
         }
 
         [HttpPost("broadcast")]
-        public async Task<IActionResult> SendBroadcast([FromBody] BroadcastRequestDto request)
+        public async Task<ActionResult<List<Guid>>> SendBroadcast([FromBody] BroadcastRequestDto request)
         {
             try
             {
                 var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var result = await _chatService.SendBroadcast(Guid.Parse(sid.Value), request.Content, request.Type, request.TargetType, request.TargetId);
+                var sidName = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Name);
+                request.SenderId = Guid.Parse(sid.Value);
+                request.SenderName = sidName.Value;
+                var result = await _chatService.SendBroadcast(request);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(result));
             }
             catch (Exception ex)

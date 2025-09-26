@@ -31,7 +31,7 @@ jobs:
 
     - name: Add migration and update database
       run: |
-        dotnet ef migrations add init -p Infrastructure -s Api --force
+        dotnet ef migrations add init -p Infrastructure -s Api
         dotnet ef database update -p Infrastructure -s Api
 
     - name: Publish API

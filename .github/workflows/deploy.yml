@@ -20,6 +20,10 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore MiniStore.sln
 
+    - name: Remove old migrations
+      run: |
+        rm -rf Infrastructure/Migrations
+
     - name: Build
       run: dotnet build --no-restore --configuration Release
 

@@ -1,9 +1,8 @@
-using Application.Common.Helpers;
 using Application.Common.Security;
 using Application.Dtos;
-using Application.IRepositories;
 using Application.IServices;
 using AutoMapper;
+using Core.Constants;
 using Core.Entities;
 using Core.Enums;
 using Infrastructure.Data;
@@ -15,153 +14,213 @@ namespace Infrastructure.Services
     public class ChatService : IChatService
     {
         private readonly ApplicationDbContext _context;
-        private readonly IGenericRepository<Message> _messageRepository;
-        private readonly IGenericRepository<Room> _roomRepository;
-        private readonly IGenericRepository<RoomUser> _roomUserRepository;
-        private readonly IGenericRepository<Broadcast> _broadcastRepository;
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
         private readonly IMapper _mapper;
+
         public ChatService(
             ApplicationDbContext context,
-         UserManager<User> userManager,
-         RoleManager<IdentityRole<Guid>> roleManager,
-         IGenericRepository<Message> messageRepository,
-         IGenericRepository<Room> roomRepository,
-         IGenericRepository<RoomUser> roomUserRepository,
-         IGenericRepository<Broadcast> broadcastRepository,
-         IMapper mapper)
+            UserManager<User> userManager,
+            IMapper mapper)
         {
             _context = context;
             _userManager = userManager;
-            _roleManager = roleManager;
-            _messageRepository = messageRepository;
-            _roomRepository = roomRepository;
-            _roomUserRepository = roomUserRepository;
-            _broadcastRepository = broadcastRepository;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<UserResponseDto>> GetChatAbleUsers(Guid userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            var roles = await _userManager.GetRolesAsync(user!);
-            if (roles.Contains(Role.Admin))
-            {
-                var result = await _userManager.Users.Where(u => u.Id != userId).ToListAsync();
-                return result.Select(_mapper.Map<UserResponseDto>);
-            }
-            var adminRoleId = await _roleManager.Roles
-                .Where(r => r.Name == Role.Admin)
-                .Select(r => r.Id)
-                .FirstOrDefaultAsync();
-            var adminUsers = await (from u in _context.Users
-                                    join ur in _context.UserRoles on u.Id equals ur.UserId
-                                    where ur.RoleId == adminRoleId
-                                    select u).ToListAsync();
-            return adminUsers.Select(_mapper.Map<UserResponseDto>) ?? [];
-        }
-
-        public async Task<IEnumerable<MessageResponseDto>> GetMessages(Guid? roomId, Guid? userId1, Guid? userId2)
-        {
-            if (roomId.HasValue)
-            {
-                var result = await _messageRepository.FindManyAsync(m => m.RoomId == roomId.Value);
-                return result.OrderBy(m => m.CreatedAt).Select(_mapper.Map<MessageResponseDto>);
-            }
-
-            if (userId1.HasValue && userId2.HasValue)
-            {
-                var result = await _messageRepository.FindManyAsync(m => (m.SenderId == userId1 && m.ReceiverId == userId2)
-                             || (m.SenderId == userId2 && m.ReceiverId == userId1));
-
-                return result.OrderBy(m => m.CreatedAt).Select(_mapper.Map<MessageResponseDto>);
-            }
-
-            return [];
-        }
-
-        public async Task<MessageResponseDto?> SendMessage(MessageRequestDto request)
+        public async Task<MessageResponseDto> SendMessage(MessageRequestDto request)
         {
             var message = new Message
             {
+                ConversationId = request.ConversationId,
                 SenderId = request.SenderId,
-                ReceiverId = request.ReceiverId,
-                RoomId = request.RoomId,
-                Content = request.Content,
-                Type = request.Type
-            };
-            await _messageRepository.AddAsync(message);
-            var resultSave = await _context.SaveChangesAsync();
-            return resultSave > 0 ? _mapper.Map<MessageResponseDto>(message) : null;
-        }
-
-        public async Task<RoomResponseDto?> ValidateRoom(string roomCode, bool isGroup)
-        {
-            var room = await _roomRepository.FindOneAsync(x => x.RoomCode.Equals(roomCode) && x.IsGroup == isGroup);
-            return room is not null ? _mapper.Map<RoomResponseDto>(room) : null;
-        }
-
-        public async Task<RoomResponseDto> CreateRoom(RoomRequestDto request)
-        {
-            var user = await _userManager.FindByIdAsync(request.HostId);
-            var roles = await _userManager.GetRolesAsync(user!);
-            if (!roles.Contains(Role.Admin))
-            {
-                throw new Exception("Only admin can create room");
-            }
-
-            var room = _mapper.Map<Room>(request);
-            var hostId = Guid.Parse(request.HostId);
-            room.RoomCode = ChatHubHelper.SetRoomCode(hostId, request.UserIds[0], request.Name, request.IsGroup);
-
-            await _roomRepository.AddAsync(room);
-
-            await _roomUserRepository.AddAsync(new RoomUser { RoomId = room.Id, UserId = hostId });
-
-            var roomUsers = new List<RoomUser>();
-            roomUsers.AddRange(request.UserIds.Select(u => new RoomUser { RoomId = room.Id, UserId = u }));
-
-            await _roomUserRepository.AddRangeAsync(roomUsers);
-
-            await _context.SaveChangesAsync();
-            return _mapper.Map<RoomResponseDto>(room);
-        }
-
-        public async Task<IEnumerable<RoomResponseDto>> GetUserRooms(Guid userId)
-        {
-            var result = await _context.Rooms
-                .Include(r => r.RoomUsers)
-                .Where(r => r.RoomUsers.Any(ru => ru.UserId == userId))
-                .ToListAsync();
-            return result.Select(_mapper.Map<RoomResponseDto>);
-        }
-
-        public async Task<List<Guid>> SendBroadcast(BroadcastRequestDto request)
-        {
-            var broadcast = _mapper.Map<Broadcast>(request);
-            await _broadcastRepository.AddAsync(broadcast);
-
-            List<Guid> userIds = request.TargetType switch
-            {
-                TargetType.All => await _context.Users.Where(user => user.Id != request.SenderId).Select(user => user.Id).ToListAsync(),
-                TargetType.Group => await _context.RoomUsers.Where(room => room.RoomId == request.TargetId).Select(room => room.UserId).ToListAsync(),
-                _ => []
-            };
-
-            IEnumerable<Message> messages = userIds.Select(uid =>
-            new Message
-            {
-                SenderId = request.SenderId,
-                ReceiverId = uid,
                 Content = request.Content,
                 Type = request.Type,
-                RoomId = request.TargetType == TargetType.Group ? request.TargetId : null,
-                SenderName = request.SenderName,
-            });
-            await _messageRepository.AddRangeAsync(messages);
+                Status = MessageStatus.Sent
+            };
+
+            _context.Messages.Add(message);
+
+            // Create receipts for all conversation members except sender
+            var members = await _context.ConversationMembers
+                .Where(m => m.ConversationId == request.ConversationId && m.UserId != request.SenderId)
+                .ToListAsync();
+
+            foreach (var member in members)
+            {
+                _context.MessageReceipts.Add(new MessageReceipt
+                {
+                    MessageId = message.Id,
+                    UserId = member.UserId,
+                    Status = ReceiptStatus.Delivered
+                });
+            }
+
+            // Update conversation's last message
+            var conversation = await _context.Conversations.FindAsync(request.ConversationId);
+            if (conversation != null)
+            {
+                conversation.LastMessage = request.Content;
+                conversation.LastMessageAt = DateTime.UtcNow;
+            }
+
             await _context.SaveChangesAsync();
-            return userIds;
+            return _mapper.Map<MessageResponseDto>(message);
+        }
+
+        public async Task<ConversationResponseDto> CreateConversation(ConversationRequestDto request)
+        {
+            var conversation = new Conversation
+            {
+                Name = request.Name,
+                Type = request.Type
+            };
+
+            _context.Conversations.Add(conversation);
+
+            // Add members
+            var members = request.MemberIds.Select(userId => new ConversationMember
+            {
+                ConversationId = conversation.Id,
+                UserId = userId,
+                Role = userId == request.CreatorId ? ChatRole.Owner : ChatRole.Member
+            });
+
+            await _context.ConversationMembers.AddRangeAsync(members);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ConversationResponseDto>(conversation);
+        }
+
+        public async Task<BroadcastResponseDto> CreateBroadcastAsync(
+            Guid senderId,
+            string content,
+            MessageType type,
+            List<Guid> userIds,
+            DateTime? scheduledAt = null)
+        {
+            var broadcast = new Broadcast
+            {
+                SenderId = senderId,
+                Content = content,
+                Type = type,
+                IsScheduled = scheduledAt.HasValue,
+                ScheduledAt = scheduledAt,
+                Status = scheduledAt.HasValue ? BroadcastStatus.Scheduled : BroadcastStatus.Sent
+            };
+
+            _context.Broadcasts.Add(broadcast);
+
+            // Create recipients
+            var recipients = userIds.Select(userId => new BroadcastRecipient
+            {
+                BroadcastId = broadcast.Id,
+                UserId = userId,
+                Status = ReceiptStatus.Delivered
+            });
+
+            await _context.BroadcastRecipients.AddRangeAsync(recipients);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<BroadcastResponseDto>(broadcast);
+        }
+
+        public async Task<IEnumerable<MessageResponseDto>> GetConversationMessages(
+            Guid conversationId,
+            int skip = 0,
+            int take = 50)
+        {
+            var messages = await _context.Messages
+                .Where(m => m.ConversationId == conversationId)
+                .OrderByDescending(m => m.CreatedAt)
+                .Skip(skip)
+                .Take(take)
+                .Include(m => m.Sender)
+                .Include(m => m.Receipts)
+                .ToListAsync();
+
+            return messages.Select(_mapper.Map<MessageResponseDto>);
+        }
+
+        public async Task UpdateMessageStatus(Guid messageId, Guid userId, ReceiptStatus status)
+        {
+            var receipt = await _context.MessageReceipts
+                .FirstOrDefaultAsync(r => r.MessageId == messageId && r.UserId == userId);
+
+            if (receipt != null)
+            {
+                receipt.Status = status;
+                receipt.ReadAt = status == ReceiptStatus.Read ? DateTime.UtcNow : null;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<ConversationResponseDto>> GetUserConversations(Guid userId)
+        {
+            // Get current user with roles
+            var currentUser = await _userManager.FindByIdAsync(userId.ToString());
+            if (currentUser == null)
+                throw new UnauthorizedAccessException("User not found");
+
+            var userRoles = await _userManager.GetRolesAsync(currentUser);
+
+            // Get base query for conversations
+            var conversationsQuery = _context.Conversations
+                .Include(c => c.Members)
+                .ThenInclude(m => m.User)
+                .Where(c => c.Members.Any(m => m.UserId == userId));
+
+            // Get existing private conversations
+            var existingConversations = await conversationsQuery
+                .Where(c => c.Type == ConversationType.Private || c.Type == ConversationType.Group)
+                .OrderByDescending(c => c.LastMessageAt)
+                .ToListAsync();
+
+            // Get potential users for private chat based on roles
+            var potentialUsersQuery = _userManager.Users.Where(u => u.Id != userId);
+
+            if (userRoles.Contains("Admin"))
+            {
+                // Admins can see all users except themselves
+                potentialUsersQuery = potentialUsersQuery.Where(u => u.Id != userId);
+            }
+            else
+            {
+                // Non-admins can only see admins
+                var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
+                var adminIds = adminUsers.Select(u => u.Id);
+                potentialUsersQuery = potentialUsersQuery.Where(u => adminIds.Contains(u.Id));
+            }
+
+            var potentialUsers = await potentialUsersQuery.ToListAsync();
+
+            // Create virtual conversations for potential private chats
+            var virtualConversations = potentialUsers.Select(user => new Conversation
+            {
+                Id = Guid.Empty,
+                Type = ConversationType.Private,
+                Name = user.FullName ?? user.UserName!,
+                Members =
+                [
+                    new() { ConversationId = Guid.Empty, UserId = currentUser.Id, Role = ChatRole.Owner, User = currentUser },
+                    new() { ConversationId = Guid.Empty, UserId = user.Id, Role = ChatRole.Member, User = user }
+                ]
+            });
+            
+            // Combine existing and potential conversations
+            var allConversations = existingConversations.Concat(virtualConversations);
+
+            // Filter out virtual conversations that already exist
+            var existingPrivateUserIds = existingConversations
+                .Where(c => c.Type == ConversationType.Private)
+                .SelectMany(c => c.Members)
+                .Where(m => m.UserId != userId)
+                .Select(m => m.UserId);
+
+            var filteredConversations = allConversations
+                .Where(c => c.Type != ConversationType.Private ||
+                            !existingPrivateUserIds.Contains(c.Members.First(m => m.UserId != userId).UserId));
+
+            return _mapper.Map<IEnumerable<ConversationResponseDto>>(filteredConversations);
         }
     }
 }

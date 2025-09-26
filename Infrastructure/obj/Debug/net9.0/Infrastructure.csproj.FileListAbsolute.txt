@@ -10,9 +10,9 @@
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.AssemblyInfoInputs.cache
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.AssemblyInfo.cs
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.csproj.CoreCompileInputs.cache
+/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.sourcelink.json
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastr.15EFFBFE.Up2Date
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.dll
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/refint/Infrastructure.dll
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.pdb
 /Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/ref/Infrastructure.dll
-/Users/kevin/Documents/Projects/MiniStore/Infrastructure/obj/Debug/net9.0/Infrastructure.sourcelink.json

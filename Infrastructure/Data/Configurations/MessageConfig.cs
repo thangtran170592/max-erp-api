@@ -9,18 +9,25 @@ namespace Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Message> builder)
         {
             builder.ToTable("Messages");
-            builder.HasKey(m => m.Id);
-            builder
-                .HasOne(m => m.Sender)
-                .WithMany(u => u.SentMessages)
-                .HasForeignKey(m => m.SenderId)
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Type)
+                .HasConversion<int>()
+                .IsRequired();
+
+            builder.Property(x => x.Status)
+                .HasConversion<int>()
+                .IsRequired();
+
+            builder.HasOne(x => x.Sender)
+                .WithMany()
+                .HasForeignKey(x => x.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder
-                .HasOne(m => m.Receiver)
-                .WithMany(u => u.ReceivedMessages)
-                .HasForeignKey(m => m.ReceiverId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(x => x.Receipts)
+                .WithOne(x => x.Message)
+                .HasForeignKey(x => x.MessageId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -22,108 +22,123 @@ namespace Api.Controllers
             _logger = logger;
         }
 
+        [HttpGet("conversations")]
         [Authorize(Policy = $"PERMISSION:{Permission.ViewChats}")]
-        [HttpGet("users")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<UserResponseDto>>>> GetUsers()
+        public async Task<ActionResult<ApiResponse<IEnumerable<ConversationResponseDto>>>> GetUserConversations()
         {
             try
             {
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var users = await _chatService.GetChatAbleUsers(Guid.Parse(sid.Value));
-                return Ok(ApiResponseHelper.CreateSuccessResponse(users));
+                var userId = GetCurrentUserId();
+                var conversations = await _chatService.GetUserConversations(userId);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(conversations));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error getting user conversations");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }
 
-        [HttpPost("history-messages")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponseDto>>>> HistoryMessages(HistoryMessagesRequestDto request)
+        [HttpPost("conversations")]
+        public async Task<ActionResult<ApiResponse<ConversationResponseDto>>> CreateConversation(
+            [FromBody] ConversationRequestDto request)
         {
             try
             {
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var messages = await _chatService.GetMessages(request.RoomId, Guid.Parse(sid.Value), request.CustomerId);
+                request.CreatorId = GetCurrentUserId();
+                var conversation = await _chatService.CreateConversation(request);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(conversation));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating conversation");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
+        [HttpGet("conversations/{conversationId}/messages")]
+        public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponseDto>>>> GetMessages(
+            Guid conversationId,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var messages = await _chatService.GetConversationMessages(conversationId, skip, take);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(messages));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error getting conversation messages");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }
 
-        [Authorize(Policy = $"PERMISSION:{Permission.CreateChats}")]
         [HttpPost("messages")]
-        public async Task<IActionResult> SendMessage([FromBody] MessageRequestDto request)
+        public async Task<ActionResult<ApiResponse<MessageResponseDto>>> SendMessage(
+            [FromBody] MessageRequestDto request)
         {
             try
             {
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                request.SenderId = Guid.Parse(sid.Value);
-                var messages = await _chatService.SendMessage(request);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(messages));
+                request.SenderId = GetCurrentUserId();
+                var message = await _chatService.SendMessage(request);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(message));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error sending message");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }
 
-        [HttpPost("rooms")]
-        public async Task<ActionResult<RoomResponseDto>> CreateRoom([FromBody] RoomRequestDto request)
+        [HttpPost("broadcasts")]
+        public async Task<ActionResult<ApiResponse<BroadcastResponseDto>>> SendBroadcast([FromBody] BroadcastRequestDto request)
         {
             try
             {
-                if (!string.IsNullOrEmpty(request.RoomCode))
-                {
-                    var findRoom = await _chatService.ValidateRoom(request.RoomCode, request.IsGroup);
-                    if (findRoom is not null)
-                    {
-                        return Ok(ApiResponseHelper.CreateSuccessResponse(findRoom));
-                    }
-                }
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var room = await _chatService.CreateRoom(request);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(room));
+                var senderId = GetCurrentUserId();
+                var broadcast = await _chatService.CreateBroadcastAsync(
+                    senderId,
+                    request.Content,
+                    request.Type,
+                    request.UserIds,
+                    request.ScheduledAt
+                );
+                return Ok(ApiResponseHelper.CreateSuccessResponse(broadcast));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error sending broadcast");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }
 
-        [HttpGet("rooms")]
-        public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetRooms()
+        [HttpPost("messages/{messageId}/status")]
+        public async Task<ActionResult> UpdateMessageStatus(
+            Guid messageId,
+            [FromBody] UpdateMessageStatusRequest request)
         {
             try
             {
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var rooms = await _chatService.GetUserRooms(Guid.Parse(sid.Value));
-                return Ok(ApiResponseHelper.CreateSuccessResponse(rooms));
+                var userId = GetCurrentUserId();
+                await _chatService.UpdateMessageStatus(messageId, userId, request.Status);
+                return Ok(ApiResponseHelper.CreateSuccessResponse("Message status updated successfully"));
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error updating message status");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }
 
-        [HttpPost("broadcast")]
-        public async Task<ActionResult<List<Guid>>> SendBroadcast([FromBody] BroadcastRequestDto request)
+        private Guid GetCurrentUserId()
         {
-            try
+            var sidClaim = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
+            if (sidClaim == null)
             {
-                var sid = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-                var sidName = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Name);
-                request.SenderId = Guid.Parse(sid.Value);
-                request.SenderName = sidName.Value;
-                var result = await _chatService.SendBroadcast(request);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(result));
+                throw new Exception("Sid claim not found");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
+            return Guid.Parse(sidClaim.Value);
         }
     }
 }

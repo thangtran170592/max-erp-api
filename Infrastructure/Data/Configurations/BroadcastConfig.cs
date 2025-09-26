@@ -9,15 +9,25 @@ namespace Infrastructure.Data.Configurations
         public void Configure(EntityTypeBuilder<Broadcast> builder)
         {
             builder.ToTable("Broadcasts");
-            builder.HasKey(e => e.Id);
-            builder.Property(e => e.TargetType)
+            builder.HasKey(x => x.Id);
+
+            builder.Property(x => x.Type)
                 .HasConversion<int>()
                 .IsRequired();
-            builder
-                .HasOne(b => b.Sender)
+
+            builder.Property(x => x.Status)
+                .HasConversion<int>()
+                .IsRequired();
+
+            builder.HasOne(x => x.Sender)
                 .WithMany()
-                .HasForeignKey(b => b.SenderId)
+                .HasForeignKey(x => x.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Recipients)
+                .WithOne(x => x.Broadcast)
+                .HasForeignKey(x => x.BroadcastId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

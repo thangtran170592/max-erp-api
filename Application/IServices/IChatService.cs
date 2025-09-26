@@ -5,12 +5,11 @@ namespace Application.IServices
 {
     public interface IChatService
     {
-        Task<IEnumerable<UserResponseDto>> GetChatAbleUsers(Guid userId);
-        Task<IEnumerable<MessageResponseDto>> GetMessages(Guid? roomId, Guid? userId1, Guid? userId2);
-        Task<MessageResponseDto?> SendMessage(MessageRequestDto request);
-        Task<RoomResponseDto?> ValidateRoom(string roomCode, bool isGroup);
-        Task<RoomResponseDto> CreateRoom(RoomRequestDto request);
-        Task<IEnumerable<RoomResponseDto>> GetUserRooms(Guid userId);
-        Task<List<Guid>> SendBroadcast(BroadcastRequestDto request);
+        Task<MessageResponseDto> SendMessage(MessageRequestDto request);
+        Task<ConversationResponseDto> CreateConversation(ConversationRequestDto request);
+        Task<BroadcastResponseDto> CreateBroadcastAsync(Guid senderId, string content, MessageType type, List<Guid> userIds, DateTime? scheduledAt = null);
+        Task<IEnumerable<MessageResponseDto>> GetConversationMessages(Guid conversationId, int skip = 0, int take = 50);
+        Task UpdateMessageStatus(Guid messageId, Guid userId, ReceiptStatus status);
+        Task<IEnumerable<ConversationResponseDto>> GetUserConversations(Guid userId);
     }
 }

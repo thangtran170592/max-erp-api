@@ -71,6 +71,7 @@ namespace Application.Dtos
         public string Role { get; set; } = string.Empty;
         public DateTime? LastReadAt { get; set; }
     }
+    
     public class BroadcastRecipientDto
     {
         public Guid UserId { get; set; }

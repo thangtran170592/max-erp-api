@@ -77,12 +77,17 @@ namespace Infrastructure.Services
 
             _context.Conversations.Add(conversation);
 
-            // Add members
-            var members = request.MemberIds.Select(userId => new ConversationMember
+            // Lấy thông tin user cho từng member
+            var users = await _userManager.Users
+                .Where(u => request.MemberIds.Contains(u.Id))
+                .ToListAsync();
+
+            var members = users.Select(user => new ConversationMember
             {
                 ConversationId = conversation.Id,
-                UserId = userId,
-                Role = userId == request.CreatorId ? ChatRole.Owner : ChatRole.Member
+                UserId = user.Id,
+                User = user,
+                Role = request.Type == ConversationType.Group && user.Id == request.CreatorId ? ChatRole.Owner : ChatRole.Member
             });
 
             await _context.ConversationMembers.AddRangeAsync(members);
@@ -156,71 +161,66 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<ConversationResponseDto>> GetUserConversations(Guid userId)
         {
-            // Get current user with roles
-            var currentUser = await _userManager.FindByIdAsync(userId.ToString());
-            if (currentUser == null)
-                throw new UnauthorizedAccessException("User not found");
+            // Lấy thông tin user hiện tại và vai trò
+            var currentUser = await _userManager.FindByIdAsync(userId.ToString())
+            ?? throw new UnauthorizedAccessException("User not found");
 
             var userRoles = await _userManager.GetRolesAsync(currentUser);
+            var isAdmin = userRoles.Contains(Role.Admin.ToString());
 
-            // Get base query for conversations
-            var conversationsQuery = _context.Conversations
+            // Lấy các conversation đã tồn tại của user hiện tại
+            var existingConversations = await _context.Conversations
                 .Include(c => c.Members)
-                .ThenInclude(m => m.User)
-                .Where(c => c.Members.Any(m => m.UserId == userId));
-
-            // Get existing private conversations
-            var existingConversations = await conversationsQuery
+                .Where(c => c.Members.Any(u => u.UserId == userId))
                 .Where(c => c.Type == ConversationType.Private || c.Type == ConversationType.Group)
                 .OrderByDescending(c => c.LastMessageAt)
                 .ToListAsync();
 
-            // Get potential users for private chat based on roles
-            var potentialUsersQuery = _userManager.Users.Where(u => u.Id != userId);
-
-            if (userRoles.Contains("Admin"))
+            List<User> targetUsers;
+            if (isAdmin)
             {
-                // Admins can see all users except themselves
-                potentialUsersQuery = potentialUsersQuery.Where(u => u.Id != userId);
+                // Admin: lấy tất cả user khác trừ chính mình
+                targetUsers = await _userManager.Users
+                    .Where(u => u.Id != userId)
+                    .AsNoTracking()
+                    .ToListAsync();
             }
             else
             {
-                // Non-admins can only see admins
-                var adminUsers = await _userManager.GetUsersInRoleAsync("Admin");
-                var adminIds = adminUsers.Select(u => u.Id);
-                potentialUsersQuery = potentialUsersQuery.Where(u => adminIds.Contains(u.Id));
+                // Không phải admin: lấy tất cả admin khác đã hoặc chưa chat với user này
+                var adminUsers = await _userManager.GetUsersInRoleAsync(Role.Admin.ToString());
+                targetUsers = adminUsers
+                    .Where(u => u.Id != userId)
+                    .ToList();
             }
 
-            var potentialUsers = await potentialUsersQuery.ToListAsync();
-
-            // Create virtual conversations for potential private chats
-            var virtualConversations = potentialUsers.Select(user => new Conversation
-            {
-                Id = Guid.Empty,
-                Type = ConversationType.Private,
-                Name = user.FullName ?? user.UserName!,
-                Members =
-                [
-                    new() { ConversationId = Guid.Empty, UserId = currentUser.Id, Role = ChatRole.Owner, User = currentUser },
-                    new() { ConversationId = Guid.Empty, UserId = user.Id, Role = ChatRole.Member, User = user }
-                ]
-            });
-            
-            // Combine existing and potential conversations
-            var allConversations = existingConversations.Concat(virtualConversations);
-
-            // Filter out virtual conversations that already exist
+            // Lấy các user đã có conversation riêng với user hiện tại
             var existingPrivateUserIds = existingConversations
                 .Where(c => c.Type == ConversationType.Private)
                 .SelectMany(c => c.Members)
                 .Where(m => m.UserId != userId)
-                .Select(m => m.UserId);
+                .Select(m => m.UserId)
+                .ToHashSet();
 
-            var filteredConversations = allConversations
-                .Where(c => c.Type != ConversationType.Private ||
-                            !existingPrivateUserIds.Contains(c.Members.First(m => m.UserId != userId).UserId));
+            // Tạo virtual conversation cho các user chưa có chat riêng
+            var virtualConversations = targetUsers
+                .Where(u => !existingPrivateUserIds.Contains(u.Id))
+                .Select(user => new Conversation
+                {
+                    Id = Guid.Empty,
+                    Type = ConversationType.Private,
+                    Name = string.Empty,
+                    Members = new List<ConversationMember>
+                    {
+                new() { ConversationId = Guid.Empty, UserId = currentUser.Id, Role = ChatRole.Member, User = currentUser },
+                new() { ConversationId = Guid.Empty, UserId = user.Id, Role = ChatRole.Member, User = user }
+                    }
+                });
 
-            return _mapper.Map<IEnumerable<ConversationResponseDto>>(filteredConversations);
+            // Gộp conversation thật và conversation ảo
+            var allConversations = existingConversations.Concat(virtualConversations);
+
+            return _mapper.Map<IEnumerable<ConversationResponseDto>>(allConversations);
         }
     }
 }

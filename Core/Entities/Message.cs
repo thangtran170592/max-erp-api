@@ -4,15 +4,13 @@ namespace Core.Entities
 {
     public class Message : BaseEntity
     {
+        public Guid ConversationId { get; set; }
         public Guid SenderId { get; set; }
-        public string SenderName { get; set; } = string.Empty;
-        public Guid? ReceiverId { get; set; }
-        public Guid? RoomId { get; set; }
-        public string Content { get; set; } = null!;
-        public MessageType Type { get; set; } = MessageType.Text;
-        public bool IsRead { get; set; } = false;
+        public string Content { get; set; } = string.Empty;
+        public MessageType Type { get; set; }
+        public MessageStatus Status { get; set; }
+        public virtual Conversation Conversation { get; set; } = null!;
         public virtual User Sender { get; set; } = null!;
-        public virtual User? Receiver { get; set; }
-        public virtual Room? Room { get; set; }
+        public virtual ICollection<MessageReceipt> Receipts { get; set; } = [];
     }
 }

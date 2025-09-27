@@ -89,6 +89,6 @@ namespace Application.Dtos
         public required string UserName { get; init; }
         public required string Email { get; init; }
         public required string PhoneNumber { get; init; }
-        public List<string> Roles { get; set; } = new();
+        public IList<string> Roles { get; set; } = null!;
     }
 }

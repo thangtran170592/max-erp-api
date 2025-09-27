@@ -21,15 +21,32 @@ namespace Core.Entities
         public string? Address { get; set; }
         public Level Level { get; set; } = Level.Beginner;
         public bool IsOnline { get; set; } = false;
+        public string? LastSeenAt { get; set; }
+        public UserStatus Status { get; set; } = UserStatus.Available;
+        public string? StatusMessage { get; set; }
 
-        public ICollection<Message> SentMessages { get; set; } = [];
-        public ICollection<Message> ReceivedMessages { get; set; } = [];
-        public ICollection<RoomUser> Rooms { get; set; } = new List<RoomUser>();
+        // Chat related collections
+        public virtual ICollection<Message> SentMessages { get; set; } = [];
+        public virtual ICollection<MessageReceipt> MessageReceipts { get; set; } = [];
+        public virtual ICollection<ConversationMember> Conversations { get; set; } = [];
+        public virtual ICollection<Broadcast> SentBroadcasts { get; set; } = [];
+        public virtual ICollection<BroadcastRecipient> ReceivedBroadcasts { get; set; } = [];
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
         public void AddRefreshToken(RefreshToken refreshToken)
         {
             RefreshTokens.Add(refreshToken);
+        }
+
+        public void UpdateLastSeen()
+        {
+            LastSeenAt = DateTime.UtcNow.ToString("O");
+        }
+
+        public void UpdateStatus(UserStatus status, string? message = null)
+        {
+            Status = status;
+            StatusMessage = message;
         }
     }
 }

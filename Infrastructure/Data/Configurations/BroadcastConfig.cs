@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations
 {
-    public class MessageConfig : IEntityTypeConfiguration<Message>
+    public class BroadcastConfig : IEntityTypeConfiguration<Broadcast>
     {
-        public void Configure(EntityTypeBuilder<Message> builder)
+        public void Configure(EntityTypeBuilder<Broadcast> builder)
         {
-            builder.ToTable("Messages");
+            builder.ToTable("Broadcasts");
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Type)
@@ -24,9 +24,9 @@ namespace Infrastructure.Data.Configurations
                 .HasForeignKey(x => x.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(x => x.Receipts)
-                .WithOne(x => x.Message)
-                .HasForeignKey(x => x.MessageId)
+            builder.HasMany(x => x.Recipients)
+                .WithOne(x => x.Broadcast)
+                .HasForeignKey(x => x.BroadcastId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

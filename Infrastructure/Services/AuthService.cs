@@ -58,10 +58,11 @@ namespace Infrastructure.Services
             var roles = await _userManager.GetRolesAsync(user);
             var accessToken = JwtToken.GenerateJwtToken(user, _config, roles);
             var refreshToken = JwtToken.GenerateRefreshToken();
-
+            var result = _mapper.Map<UserResponseDto>(user);
+            result.Roles = roles;
             return new AuthResponseDto
             {
-                User = _mapper.Map<UserResponseDto>(user),
+                User = result,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };

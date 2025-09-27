@@ -1,5 +1,4 @@
 using System.IdentityModel.Tokens.Jwt;
-using Application.Common.Helpers;
 using Application.Dtos;
 using Application.IServices;
 using Core.Constants;
@@ -14,6 +13,7 @@ public class ChatHub : Hub
 {
     private readonly ILogger<ChatHub> _logger;
     private readonly IChatService _chatService;
+
     public ChatHub(IChatService chatService, ILogger<ChatHub> logger)
     {
         _chatService = chatService;
@@ -24,19 +24,19 @@ public class ChatHub : Hub
     {
         try
         {
-            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
-            var senderName = Context.User?.Identity?.Name ?? "Unknown";
-            if (!string.IsNullOrEmpty(senderSid))
+            var userId = GetCurrentUserId();
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
+
+            var connections = ConnectionMapping.GetConnections(userId.ToString());
+            if (connections?.Any() == true)
             {
-                var connections = ConnectionMapping.GetConnections(senderSid!);
-                if (connections is not null && connections.Any())
-                {
-                    _logger.LogWarning($"User {senderSid} already has {connections.Count()} connections");
-                }
-                ConnectionMapping.Add(senderSid, Context.ConnectionId);
+                _logger.LogInformation($"User {userId} has {connections.Count()} existing connections");
             }
+
+            ConnectionMapping.Add(userId.ToString(), Context.ConnectionId);
+            await UpdateUserStatus(userId, UserStatus.Available);
+            await Clients.Others.SendAsync(ChatHubEvent.UserOnline, userId);
             await base.OnConnectedAsync();
-            _logger.LogDebug("Client successfully connected");
         }
         catch (Exception ex)
         {
@@ -47,38 +47,62 @@ public class ChatHub : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
-        var senderName = Context.User?.Identity?.Name ?? "Unknown";
-        _logger.LogInformation($"User  id: {senderSid}, name: {senderName} disconnected {Context.ConnectionId}");
-        if (!string.IsNullOrEmpty(senderSid))
-        {
-            ConnectionMapping.Remove(senderSid, Context.ConnectionId);
-        }
-        await base.OnDisconnectedAsync(exception);
-    }
-
-    public async Task JoinUser(Guid? receiverId, Guid? roomId)
-    {
         try
         {
-            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
-            var senderName = Context.User?.Identity?.Name ?? "Unknown";
+            var userId = GetCurrentUserId();
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
 
-            var groupId = string.Empty;
-            if (roomId.HasValue)
+            ConnectionMapping.Remove(userId.ToString(), Context.ConnectionId);
+            
+            var remainingConnections = ConnectionMapping.GetConnections(userId.ToString());
+            if (remainingConnections?.Any() != true)
             {
-                groupId = $"Group-{roomId}";
+                await UpdateUserStatus(userId, UserStatus.Offline);
+                await Clients.Others.SendAsync(ChatHubEvent.UserOffline, userId);
             }
-            else if (receiverId.HasValue)
-            {
-                groupId = GetPrivateGroupName(Guid.Parse(senderSid!), receiverId!.Value);
-            }
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
-            _logger.LogInformation($"User  id: {senderSid}, name: {senderName} joined group {groupId} successfully");
+
+            await base.OnDisconnectedAsync(exception);
+            _logger.LogInformation($"User {userId} ({userName}) disconnected");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error adding user to group");
+            _logger.LogError(ex, "Error in OnDisconnectedAsync");
+            throw;
+        }
+    }
+
+    public async Task JoinConversation(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var groupId = $"conversation-{conversationId}";
+            
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+            await Clients.Group(groupId).SendAsync(ChatHubEvent.UserJoined, userId, conversationId);
+            _logger.LogInformation($"User {userId} joined conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error joining conversation");
+            throw;
+        }
+    }
+
+    public async Task LeaveConversation(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var groupId = $"conversation-{conversationId}";
+            
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
+            await Clients.Group(groupId).SendAsync(ChatHubEvent.UserLeft, userId, conversationId);
+            _logger.LogInformation($"User {userId} left conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error leaving conversation");
             throw;
         }
     }
@@ -87,58 +111,138 @@ public class ChatHub : Hub
     {
         try
         {
-            var senderSid = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
-            var senderName = Context.User?.Identity?.Name ?? "Unknown";
-
-            _logger.LogInformation($"Sending message: Id={senderSid}, name={senderName}, ReceiverId={request.ReceiverId}, RoomId={request.RoomId}, Type={request.Type}");
-
-            if (string.IsNullOrEmpty(senderSid))
-                throw new HubException("User not authenticated");
-
-            var senderId = Guid.Parse(senderSid);
-            request.SenderId = senderId;
-            request.SenderName = senderName;
-            var sentMessage = await _chatService.SendMessage(request);
-
-            if (request.RoomId.HasValue)
-            {
-                var roomUsers = await _chatService.GetMessages(request.RoomId, null, null);
-                foreach (var user in roomUsers)
-                    await Clients.Group($"Group-{request.RoomId}").SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
-            }
-            else if (request.ReceiverId.HasValue)
-            {
-                var groupName = GetPrivateGroupName(senderId, request.ReceiverId.Value);
-                await Clients.Group(groupName).SendAsync(ChatHubEvent.ReceiveMessage, sentMessage);
-            }
+            var userId = GetCurrentUserId();
+            request.SenderId = userId;
+            
+            var message = await _chatService.SendMessage(request);
+            var groupId = $"conversation-{request.ConversationId}";
+            
+            await Clients.Group(groupId).SendAsync(ChatHubEvent.ReceiveMessage, message);
+            _logger.LogInformation($"Message sent in conversation {request.ConversationId}");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error send message");
+            _logger.LogError(ex, "Error sending message");
             throw;
         }
     }
 
-    public async Task SendBroadcast(Guid senderId, string content, MessageType type, string targetType, Guid? targetId)
+    public async Task SendBroadcast(BroadcastRequestDto request)
     {
-        await _chatService.SendBroadcast(senderId, content, type, targetType, targetId);
-
-        List<Guid> userIds = targetType switch
+        try
         {
-            "All" => await _chatService.GetChatAbleUsers(senderId).ContinueWith(t => t.Result.Select(u => u.Id).ToList()),
-            "Group" => await _chatService.GetMessages(targetId, null, null).ContinueWith(t => t.Result.Select(m => m.ReceiverId ?? Guid.NewGuid()).ToList()),
-            _ => []
-        };
+            var userId = GetCurrentUserId();
+            var broadcast = await _chatService.CreateBroadcastAsync(
+                userId,
+                request.Content,
+                request.Type,
+                request.UserIds,
+                request.ScheduledAt
+            );
 
-        foreach (var uid in userIds)
+            if (request.ScheduledAt == null)
+            {
+                foreach (var recipientId in request.UserIds)
+                {
+                    var connections = ConnectionMapping.GetConnections(recipientId.ToString());
+                    if (connections?.Any() == true)
+                    {
+                        await Clients.Clients(connections)
+                            .SendAsync(ChatHubEvent.ReceiveBroadcast, broadcast);
+                    }
+                }
+            }
+
+            await Clients.Caller.SendAsync(ChatHubEvent.BroadcastSent, broadcast.Id);
+            _logger.LogInformation($"Broadcast sent to {request.UserIds.Count} users");
+        }
+        catch (Exception ex)
         {
-            await Clients.Group($"User-{uid}").SendAsync("ReceiveMessage", senderId, content, type, DateTime.UtcNow);
+            _logger.LogError(ex, "Error sending broadcast");
+            throw;
         }
     }
 
-    private string GetPrivateGroupName(Guid sender1, Guid sender2)
+    public async Task UpdateMessageStatus(Guid messageId, ReceiptStatus status)
     {
-        var sorted = new[] { sender1, sender2 }.OrderBy(x => x).ToArray();
-        return $"Private-{sorted[0]}-{sorted[1]}";
+        try
+        {
+            var userId = GetCurrentUserId();
+            await _chatService.UpdateMessageStatus(messageId, userId, status);
+            _logger.LogInformation($"Message {messageId} status updated to {status}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating message status");
+            throw;
+        }
+    }
+
+    public async Task UserStartedTyping(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
+            var groupId = $"conversation-{conversationId}";
+
+            await Clients.OthersInGroup(groupId).SendAsync(
+                ChatHubEvent.UserStartedTyping, 
+                new { UserId = userId, UserName = userName, ConversationId = conversationId }
+            );
+            
+            _logger.LogInformation($"User {userId} started typing in conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UserStartedTyping");
+            throw;
+        }
+    }
+
+    public async Task UserStoppedTyping(Guid conversationId)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
+            var groupId = $"conversation-{conversationId}";
+
+            await Clients.OthersInGroup(groupId).SendAsync(
+                ChatHubEvent.UserStoppedTyping, 
+                new { UserId = userId, UserName = userName, ConversationId = conversationId }
+            );
+            
+            _logger.LogInformation($"User {userId} stopped typing in conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in UserStoppedTyping");
+            throw;
+        }
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var sidClaim = Context.User?.FindFirst(JwtRegisteredClaimNames.Sid)?.Value;
+        if (string.IsNullOrEmpty(sidClaim))
+        {
+            throw new UnauthorizedAccessException("User not authenticated");
+        }
+        return Guid.Parse(sidClaim);
+    }
+
+    private async Task UpdateUserStatus(Guid userId, UserStatus status)
+    {
+        try
+        {
+            // Assuming you have a method to update user status in your service
+            // await _chatService.UpdateUserStatus(userId, status);
+            await Clients.Others.SendAsync(ChatHubEvent.UserStatusChanged, userId, status);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating user status");
+        }
     }
 }

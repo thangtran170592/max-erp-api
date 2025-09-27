@@ -2,7 +2,10 @@ name: Deploy MiniStore to Windows Server 2019
 
 on:
   push:
-    branches: [ develop ]
+    branches: 
+    - develop
+    - release
+    - master
 
 jobs:
   build-and-deploy:

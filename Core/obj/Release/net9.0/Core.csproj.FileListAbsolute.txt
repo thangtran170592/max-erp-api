@@ -1,0 +1,13 @@
+C:\Projects\max-erp-api\Core\bin\Release\net9.0\Core.deps.json
+C:\Projects\max-erp-api\Core\bin\Release\net9.0\Core.dll
+C:\Projects\max-erp-api\Core\bin\Release\net9.0\Core.pdb
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.csproj.AssemblyReference.cache
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.AssemblyInfoInputs.cache
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.AssemblyInfo.cs
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.csproj.CoreCompileInputs.cache
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.sourcelink.json
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.dll
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\refint\Core.dll
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\Core.pdb
+C:\Projects\max-erp-api\Core\obj\Release\net9.0\ref\Core.dll

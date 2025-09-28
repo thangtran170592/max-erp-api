@@ -142,7 +142,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngularLocal",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
+            policy.WithOrigins(
+                    "http://localhost:4200",
+                    "http://demax-hr.vn",
+                    "http://demax-wh.vn",
+                    "http://app.demax-wh.vn",
+                    "http://app.demax-hr.vn",
+                    "http://ui.demax-wh.vn",
+                    "http://ui.demax-hr.vn")
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();

@@ -87,7 +87,7 @@ namespace Infrastructure.Services
                 ConversationId = conversation.Id,
                 UserId = user.Id,
                 User = user,
-                Role = request.Type == ConversationType.Group && user.Id == request.CreatorId ? ChatRole.Owner : ChatRole.Member
+                Role = request.Type == ConversationType.Group && user.Id == request.CreatorId ? ChatRole.Owner.GetTitle() : ChatRole.Member.GetTitle()
             });
 
             await _context.ConversationMembers.AddRangeAsync(members);
@@ -136,7 +136,7 @@ namespace Infrastructure.Services
         {
             var messages = await _context.Messages
                 .Where(m => m.ConversationId == conversationId)
-                .OrderByDescending(m => m.CreatedAt)
+                .OrderBy(m => m.CreatedAt)
                 .Skip(skip)
                 .Take(take)
                 .Include(m => m.Sender)
@@ -212,8 +212,8 @@ namespace Infrastructure.Services
                     Name = string.Empty,
                     Members = new List<ConversationMember>
                     {
-                new() { ConversationId = Guid.Empty, UserId = currentUser.Id, Role = ChatRole.Member, User = currentUser },
-                new() { ConversationId = Guid.Empty, UserId = user.Id, Role = ChatRole.Member, User = user }
+                new() { ConversationId = Guid.Empty, UserId = currentUser.Id, Role = ChatRole.Member.GetTitle(), User = currentUser },
+                new() { ConversationId = Guid.Empty, UserId = user.Id, Role = ChatRole.Member.GetTitle(), User = user }
                     }
                 });
 

@@ -17,6 +17,8 @@ namespace Infrastructure.Data
         public DbSet<Conversation> Conversations => Set<Conversation>();
         public DbSet<ConversationMember> ConversationMembers => Set<ConversationMember>();
         public DbSet<MessageReceipt> MessageReceipts => Set<MessageReceipt>();
+        public DbSet<Warehouse> Warehouses => Set<Warehouse>();
+        public DbSet<WarehouseHistory> WarehouseHistories => Set<WarehouseHistory>();
         public DbSet<BroadcastRecipient> BroadcastRecipients => Set<BroadcastRecipient>();
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)

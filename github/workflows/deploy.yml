@@ -2,75 +2,72 @@ name: Deploy MiniStore to Windows Server 2019
 
 on:
   push:
-    branches: 
-    - develop
-    - release
-    - master
+    branches: [develop]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '9.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "9.0.x"
 
-    - name: Restore dependencies
-      run: dotnet restore MiniStore.sln
+      - name: Restore dependencies
+        run: dotnet restore MiniStore.sln
 
-    - name: Remove old migrations
-      run: |
-        rm -rf Infrastructure/Migrations
+      - name: Remove old migrations
+        run: |
+          rm -rf Infrastructure/Migrations
 
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
 
-    - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Test
+        run: dotnet test --no-build --configuration Release --verbosity normal
 
-    - name: Install EF Core Tool
-      run: dotnet tool install --global dotnet-ef --version 9.0.0
+      - name: Install EF Core Tool
+        run: dotnet tool install --global dotnet-ef --version 9.0.0
 
-    - name: Add migration and update database
-      run: |
-        dotnet ef migrations add init -p Infrastructure -s Api
-        dotnet ef database update -p Infrastructure -s Api
+      - name: Add migration and update database
+        run: |
+          dotnet ef migrations add init -p Infrastructure -s Api
+          dotnet ef database update -p Infrastructure -s Api
 
-    - name: Publish API
-      run: dotnet publish Api/Api.csproj -c Release -o publish
+      - name: Publish API
+        run: dotnet publish Api/Api.csproj -c Release -o publish
 
-    - name: Create PowerShell Deploy Script
-      run: |
-        echo "@`"
-        `$ErrorActionPreference = 'Stop'
-        Import-Module WebAdministration
-        Write-Host 'Stopping IIS AppPool...'
-        Stop-WebAppPool -Name 'MiniStore'
-        Write-Host 'Starting IIS AppPool...'
-        Start-WebAppPool -Name 'MiniStore'
-        Write-Host 'Deployment completed successfully.'
-        `"@ > publish/deploy.ps1
+      - name: Create PowerShell Deploy Script
+        run: |
+          echo "@`"
+          `$ErrorActionPreference = 'Stop'
+          Import-Module WebAdministration
+          Write-Host 'Stopping IIS AppPool...'
+          Stop-WebAppPool -Name 'MiniStore'
+          Write-Host 'Starting IIS AppPool...'
+          Start-WebAppPool -Name 'MiniStore'
+          Write-Host 'Deployment completed successfully.'
+          `"@ > publish/deploy.ps1
 
-    - name: Deploy files to server
-      uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-      with:
-        server: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        local_path: './publish/*'
-        remote_path: 'C:/inetpub/wwwroot/DemaxAPI'
-        sftpArgs: '-o StrictHostKeyChecking=no'
+      - name: Deploy files to server
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          local_path: "./publish/*"
+          remote_path: "C:/inetpub/wwwroot/DemaxAPI"
+          sftpArgs: "-o StrictHostKeyChecking=no"
 
-    - name: Run deploy script on server
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
-        script: |
-          powershell -ExecutionPolicy Bypass -File C:/inetpub/wwwroot/DemaxAPI/deploy.ps1
+      - name: Run deploy script on server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            powershell -ExecutionPolicy Bypass -File C:/inetpub/wwwroot/DemaxAPI/deploy.ps1

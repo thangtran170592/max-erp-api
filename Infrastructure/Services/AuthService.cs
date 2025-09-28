@@ -84,7 +84,7 @@ namespace Infrastructure.Services
                 CreatedByIp = ipAddress,
                 User = user ?? throw new Exception("User not found")
             };
-            await _repositoryRefreshToken.AddAsync(refreshTokenObj, cancellationToken);
+            await _repositoryRefreshToken.AddOneAsync(refreshTokenObj, cancellationToken);
             return await _repositoryRefreshToken.SaveChangesAsync(cancellationToken);
         }
 
@@ -176,7 +176,7 @@ namespace Infrastructure.Services
             token.RevokedByIp = ipAddress;
             token.ReplacedByToken = newToken;
 
-            var revokeToken = _repositoryRefreshToken.Update(token);
+            var revokeToken = _repositoryRefreshToken.UpdateOne(token);
             var result = await _repositoryRefreshToken.SaveChangesAsync(cancellationToken);
             return result;
         }
@@ -204,7 +204,7 @@ namespace Infrastructure.Services
                     user.LastLoginAt = DateTime.Now;
                     await _userManager.UpdateAsync(user);
                 }
-                var updateToken = _repositoryRefreshToken.Update(refreshTokenResult);
+                var updateToken = _repositoryRefreshToken.UpdateOne(refreshTokenResult);
                 var result = await _context.SaveChangesAsync(cancellationToken);
                 if (result <= 0)
                 {

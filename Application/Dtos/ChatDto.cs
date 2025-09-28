@@ -71,7 +71,7 @@ namespace Application.Dtos
         public string Role { get; set; } = string.Empty;
         public DateTime? LastReadAt { get; set; }
     }
-    
+
     public class BroadcastRecipientDto
     {
         public Guid UserId { get; set; }
@@ -91,5 +91,12 @@ namespace Application.Dtos
         public MessageType Type { get; set; } = MessageType.Text;
         public List<Guid> UserIds { get; set; } = [];
         public DateTime? ScheduledAt { get; set; }
+    }
+
+    public class UserTypingRequestDto
+    {
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public Guid ConversationId { get; set; }
     }
 }

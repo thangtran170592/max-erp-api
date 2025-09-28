@@ -117,6 +117,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // // 🔹 MediatR
 // builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ModifyOrderHandler).Assembly));
@@ -133,6 +134,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<RefreshTokenRequestDtoValid
 // 🔹 AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new AuthProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ChatProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new CatalogProfile()));
 
 // 🔹 CORS
 builder.Services.AddCors(options =>

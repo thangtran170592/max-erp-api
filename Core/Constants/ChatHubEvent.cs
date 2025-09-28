@@ -11,7 +11,6 @@ namespace Core.Constants
         public const string MessageStatusUpdated = "MessageStatusUpdated";
         public const string ReceiveBroadcast = "ReceiveBroadcast";
         public const string BroadcastSent = "BroadcastSent";
-        public const string UserStartedTyping = "UserStartedTyping";
-        public const string UserStoppedTyping = "UserStoppedTyping";
+        public const string UserTyping = "UserTyping";
     }
 }

@@ -61,11 +61,11 @@ namespace Api.Controllers
                     Secure = false,
                     HttpOnly = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddMinutes(10)
+                    Expires = DateTimeOffset.UtcNow.AddDays(7)
                 };
                 Response.Cookies.Append(nameof(result.AccessToken), result.AccessToken.Token, _cookieOptions);
                 var cookieOptions = _cookieOptions;
-                cookieOptions.Expires = DateTimeOffset.UtcNow.AddMinutes(30);
+                cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(30);
                 Response.Cookies.Append(nameof(result.RefreshToken), result.RefreshToken.Token, cookieOptions);
                 var idAddress = GetIPAddressHelper.GetIPAddress(HttpContext);
                 await _authService.CreateRefreshTokenAsync(result.User!.Id, result.RefreshToken.Token, idAddress, cancellationToken);

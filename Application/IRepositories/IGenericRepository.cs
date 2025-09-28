@@ -8,13 +8,13 @@ namespace Application.IRepositories
         Task<PagedResult<TEntity>> FindManyWithPagingAsync(Dictionary<string, object>? filters = null, int page = 1, int pageSize = 10);
         Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> FindManyAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
-        Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>[]? filters = null, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
-        Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
-        Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
-        EntityEntry<TEntity> Update(TEntity entity);
-        public void UpdateRange(IEnumerable<TEntity> entities);
-        void Remove(TEntity entity);
-        void RemoveRange(IEnumerable<TEntity> entities);
+        Task<IEnumerable<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>>[]? filters = null, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
+        Task AddOneAsync(TEntity entity, CancellationToken cancellationToken = default);
+        Task AddManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+        EntityEntry<TEntity> UpdateOne(TEntity entity);
+        public void UpdateMany(IEnumerable<TEntity> entities);
+        void DeleteOne(TEntity entity);
+        void DeleteMany(IEnumerable<TEntity> entities);
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -25,8 +25,9 @@ namespace Core.Enums
 
     public enum ReceiptStatus
     {
-        Delivered = 1,
-        Read = 2
+        Sent = 1,
+        Delivered = 2,
+        Read = 3
     }
 
     public enum BroadcastStatus
@@ -35,5 +36,29 @@ namespace Core.Enums
         Sent = 2,
         Failed = 3,
         Scheduled = 4
+    }
+
+    public enum ChatRole
+    {
+        Owner = 1,
+        Member = 2
+    }
+
+    public static class ChatEnumExtensions
+    {
+        public static string GetTitle(this ChatRole role) => role switch
+        {
+            ChatRole.Owner => "Owner",
+            ChatRole.Member => "Member",
+            _ => "Unknown"
+        };
+
+        public static string GetTitle(this ReceiptStatus status) => status switch
+        {
+            ReceiptStatus.Sent => "Sent",
+            ReceiptStatus.Delivered => "Delivered",
+            ReceiptStatus.Read => "Read",
+            _ => "Unknown"
+        };
     }
 }

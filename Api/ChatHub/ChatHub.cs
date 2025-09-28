@@ -53,7 +53,7 @@ public class ChatHub : Hub
             var userName = Context.User?.Identity?.Name ?? "Unknown";
 
             ConnectionMapping.Remove(userId.ToString(), Context.ConnectionId);
-            
+
             var remainingConnections = ConnectionMapping.GetConnections(userId.ToString());
             if (remainingConnections?.Any() != true)
             {
@@ -76,8 +76,8 @@ public class ChatHub : Hub
         try
         {
             var userId = GetCurrentUserId();
-            var groupId = $"conversation-{conversationId}";
-            
+            var groupId = conversationId.ToString();
+
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
             await Clients.Group(groupId).SendAsync(ChatHubEvent.UserJoined, userId, conversationId);
             _logger.LogInformation($"User {userId} joined conversation {conversationId}");
@@ -94,8 +94,8 @@ public class ChatHub : Hub
         try
         {
             var userId = GetCurrentUserId();
-            var groupId = $"conversation-{conversationId}";
-            
+            var groupId = conversationId.ToString();
+
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
             await Clients.Group(groupId).SendAsync(ChatHubEvent.UserLeft, userId, conversationId);
             _logger.LogInformation($"User {userId} left conversation {conversationId}");
@@ -113,10 +113,10 @@ public class ChatHub : Hub
         {
             var userId = GetCurrentUserId();
             request.SenderId = userId;
-            
+
             var message = await _chatService.SendMessage(request);
-            var groupId = $"conversation-{request.ConversationId}";
-            
+            var groupId = request.ConversationId.ToString();
+
             await Clients.Group(groupId).SendAsync(ChatHubEvent.ReceiveMessage, message);
             _logger.LogInformation($"Message sent in conversation {request.ConversationId}");
         }
@@ -178,46 +178,29 @@ public class ChatHub : Hub
         }
     }
 
-    public async Task UserStartedTyping(Guid conversationId)
+    public async Task UserTyping(Guid conversationId)
     {
         try
         {
             var userId = GetCurrentUserId();
             var userName = Context.User?.Identity?.Name ?? "Unknown";
-            var groupId = $"conversation-{conversationId}";
+            var groupId = conversationId.ToString();
 
-            await Clients.OthersInGroup(groupId).SendAsync(
-                ChatHubEvent.UserStartedTyping, 
-                new { UserId = userId, UserName = userName, ConversationId = conversationId }
+            await Clients.Group(groupId).SendAsync(
+                ChatHubEvent.UserTyping,
+                new UserTypingRequestDto
+                {
+                    UserId = userId,
+                    UserName = userName,
+                    ConversationId = conversationId
+                }
             );
-            
-            _logger.LogInformation($"User {userId} started typing in conversation {conversationId}");
+
+            _logger.LogInformation($"User {userId} is typing in conversation {conversationId}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error in UserStartedTyping");
-            throw;
-        }
-    }
-
-    public async Task UserStoppedTyping(Guid conversationId)
-    {
-        try
-        {
-            var userId = GetCurrentUserId();
-            var userName = Context.User?.Identity?.Name ?? "Unknown";
-            var groupId = $"conversation-{conversationId}";
-
-            await Clients.OthersInGroup(groupId).SendAsync(
-                ChatHubEvent.UserStoppedTyping, 
-                new { UserId = userId, UserName = userName, ConversationId = conversationId }
-            );
-            
-            _logger.LogInformation($"User {userId} stopped typing in conversation {conversationId}");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in UserStoppedTyping");
             throw;
         }
     }

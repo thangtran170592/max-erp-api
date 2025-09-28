@@ -1,5 +1,12 @@
 namespace Application.Dtos
 {
+    public record class BaseDto
+    {
+        public Guid Id { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
+    }
+
     public record class ApiResponse<T>
     {
         public bool Success { get; set; }

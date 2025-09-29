@@ -4,10 +4,10 @@ namespace Application.IServices
 {
     public interface IWarehouseService
     {
-        Task<IEnumerable<WarehouseDto>> GetAllAsync();
-        Task<WarehouseDto?> GetByIdAsync(Guid id);
-        Task<WarehouseDto> CreateAsync(WarehouseDto request);
-        Task<WarehouseDto?> UpdateAsync(Guid id, WarehouseDto request);
+        Task<IEnumerable<WarehouseResponseDto>> GetAllAsync();
+        Task<WarehouseResponseDto?> GetByIdAsync(Guid id);
+        Task<WarehouseResponseDto> CreateAsync(WarehouseRequestDto request);
+        Task<WarehouseResponseDto?> UpdateAsync(Guid id, WarehouseRequestDto request);
         Task<bool> DeleteAsync(Guid id);
     }
 }

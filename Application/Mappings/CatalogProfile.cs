@@ -8,8 +8,8 @@ namespace Application.Mappings
     {
         public CatalogProfile()
         {
-            CreateMap<Warehouse, WarehouseDto>();
-            CreateMap<WarehouseDto, Warehouse>();
+            CreateMap<Warehouse, WarehouseResponseDto>();
+            CreateMap<WarehouseRequestDto, Warehouse>();
 
             CreateMap<WarehouseHistory, WarehouseHistoryDto>();
             CreateMap<WarehouseHistoryDto, WarehouseHistory>();

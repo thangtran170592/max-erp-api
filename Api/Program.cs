@@ -118,6 +118,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IWarehouseHistoryService, WarehouseHistoryService>();
 
 // // 🔹 MediatR
 // builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ModifyOrderHandler).Assembly));

@@ -17,28 +17,28 @@ namespace Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<WarehouseDto>> GetAllAsync()
+        public async Task<IEnumerable<WarehouseResponseDto>> GetAllAsync()
         {
             var warehouses = await _repository.FindAllAsync();
-            return _mapper.Map<IEnumerable<WarehouseDto>>(warehouses);
+            return _mapper.Map<IEnumerable<WarehouseResponseDto>>(warehouses);
         }
 
-        public async Task<WarehouseDto?> GetByIdAsync(Guid id)
+        public async Task<WarehouseResponseDto?> GetByIdAsync(Guid id)
         {
             var warehouse = await _repository.FindOneAsync(x => x.Id == id);
-            return warehouse == null ? null : _mapper.Map<WarehouseDto>(warehouse);
+            return warehouse == null ? null : _mapper.Map<WarehouseResponseDto>(warehouse);
         }
 
-        public async Task<WarehouseDto> CreateAsync(WarehouseDto request)
+        public async Task<WarehouseResponseDto> CreateAsync(WarehouseRequestDto request)
         {
             var entity = _mapper.Map<Warehouse>(request);
             entity.Id = Guid.NewGuid();
             await _repository.AddOneAsync(entity);
             await _repository.SaveChangesAsync();
-            return _mapper.Map<WarehouseDto>(entity);
+            return _mapper.Map<WarehouseResponseDto>(entity);
         }
 
-        public async Task<WarehouseDto?> UpdateAsync(Guid id, WarehouseDto request)
+        public async Task<WarehouseResponseDto?> UpdateAsync(Guid id, WarehouseRequestDto request)
         {
             var entity = await _repository.FindOneAsync(x => x.Id == id);
             if (entity == null) return null;
@@ -50,7 +50,7 @@ namespace Infrastructure.Services
 
             _repository.UpdateOne(entity);
             await _repository.SaveChangesAsync();
-            return _mapper.Map<WarehouseDto>(entity);
+            return _mapper.Map<WarehouseResponseDto>(entity);
         }
 
         public async Task<bool> DeleteAsync(Guid id)

@@ -1,13 +1,18 @@
+using Application.Common.Models;
 using Application.Dtos;
+using Core.Enums;
 
 namespace Application.IServices
 {
     public interface IWarehouseService
     {
-        Task<IEnumerable<WarehouseDto>> GetAllAsync();
-        Task<WarehouseDto?> GetByIdAsync(Guid id);
-        Task<WarehouseDto> CreateAsync(WarehouseDto request);
-        Task<WarehouseDto?> UpdateAsync(Guid id, WarehouseDto request);
-        Task<bool> DeleteAsync(Guid id);
+        Task<IEnumerable<WarehouseResponseDto>> GetAllAsync();
+        Task<ApiResponseDto<List<WarehouseResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request);
+        Task<WarehouseResponseDto?> GetByIdAsync(Guid id);
+        Task<WarehouseResponseDto> CreateAsync(WarehouseRequestDto request);
+        Task<WarehouseResponseDto?> UpdateAsync(Guid id, WarehouseRequestDto request);
+        Task<int> DeleteAsync(Guid id, Guid deletedBy);
+        Task<WarehouseResponseDto> UpdateStatusAsync(Guid id, WarehouseStatusUpdateDto request);
+        Task<IEnumerable<WarehouseHistoryDto>> GetWarehouseHistoryAsync(Guid warehouseId);
     }
 }

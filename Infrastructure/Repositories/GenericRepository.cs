@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Application.Common.Models;
+using Application.Dtos;
 using Application.IRepositories;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -33,20 +34,17 @@ namespace Infrastructure.Repositories
             return await query.Where(predicate).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<PagedResult<TEntity>> FindManyWithPagingAsync(
-            Dictionary<string, object>? filters = null,
-            int page = 1,
-            int pageSize = 10)
+        public async Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request)
         {
-            if (page <= 0) page = 1;
-            if (pageSize <= 0) pageSize = 10;
+            if (request.PagedData.Skip < 0) request.PagedData.Skip = 0;
+            if (request.PagedData.Take <= 0) request.PagedData.Take = 10;
 
             IQueryable<TEntity> query = _dbSet.AsQueryable();
 
             // Dynamic filter
-            if (filters != null)
+            if (request.Filters != null)
             {
-                foreach (var filter in filters)
+                foreach (var filter in request.Filters)
                 {
                     var property = typeof(TEntity).GetProperty(filter.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                     if (property == null) continue;
@@ -78,20 +76,78 @@ namespace Infrastructure.Repositories
                     query = query.Where(lambda);
                 }
             }
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                var parameter = Expression.Parameter(typeof(TEntity), "x");
+                Expression? body = null;
+
+                foreach (var property in typeof(TEntity).GetProperties().Where(p => p.PropertyType == typeof(string)))
+                {
+                    var member = Expression.Property(parameter, property);
+                    var notNull = Expression.NotEqual(member, Expression.Constant(null, typeof(string)));
+                    var contains = Expression.Call(
+                        member,
+                        typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!,
+                        Expression.Constant(request.SearchTerm)
+                    );
+                    var condition = Expression.AndAlso(notNull, contains);
+                    body = body == null ? condition : Expression.OrElse(body, condition);
+                }
+
+                if (body != null)
+                {
+                    var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+                    query = query.Where(lambda);
+                }
+            }
+
+            // Sorting
+            if (request.Sorts != null && request.Sorts.Any())
+            {
+                IOrderedQueryable<TEntity>? orderedQuery = null;
+                foreach (var sort in request.Sorts)
+                {
+                    var property = typeof(TEntity).GetProperty(sort.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (property == null) continue;
+                    var parameter = Expression.Parameter(typeof(TEntity), "x");
+                    var member = Expression.Property(parameter, property);
+                    var converted = Expression.Convert(member, typeof(object));
+                    var keySelector = Expression.Lambda<Func<TEntity, object>>(converted, parameter);
+
+                    if (orderedQuery == null)
+                    {
+                        orderedQuery = sort.Dir == "desc"
+                            ? Queryable.OrderByDescending(query, keySelector)
+                            : Queryable.OrderBy(query, keySelector);
+                    }
+                    else
+                    {
+                        orderedQuery = sort.Dir == "desc"
+                            ? Queryable.ThenByDescending(orderedQuery, keySelector)
+                            : Queryable.ThenBy(orderedQuery, keySelector);
+                    }
+                }
+                query = orderedQuery ?? query;
+            }
+
+            // Total count before paging
             var totalCount = await query.CountAsync();
 
             // Paging
             var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip(request.PagedData.Skip)
+                .Take(request.PagedData.Take)
                 .ToListAsync();
 
-            return new PagedResult<TEntity>
+            return new ApiResponseDto<List<TEntity>>
             {
                 Data = items,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize
+                PageData = new PagedData
+                {
+                    TotalCount = totalCount,
+                    Skip = request.PagedData.Skip,
+                    Take = request.PagedData.Take
+                }
             };
         }
 

@@ -19,14 +19,11 @@ namespace Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<ApiResponse<List<UserResponseDto>>> FindManyWithPagingAsync(
-            Dictionary<string, object>? filters = null,
-            int page = 1,
-            int pageSize = 10)
+        public async Task<ApiResponseDto<List<UserResponseDto>>> FindManyWithPagingAsync(FilterRequestDto request)
         {
-            var pagedResult = await _userRepository.FindManyWithPagingAsync(filters, page, pageSize);
-            var result = ApiResponseHelper.CreateSuccessResponse<User, UserResponseDto>(pagedResult, _mapper);
-            return result;
+            var result = await _userRepository.FindManyWithPagingAsync(request);
+            var response = ApiResponseHelper.CreateSuccessResponse<User, UserResponseDto>(result, _mapper);
+            return response;
         }
     }
 }

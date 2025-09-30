@@ -21,26 +21,17 @@ namespace Api.Controllers
         }
 
         [HttpPost("filter")]
-        public async Task<ActionResult<ApiResponse<List<UserResponseDto>>>> Filter()
+        public async Task<ActionResult<ApiResponseDto<List<UserResponseDto>>>> Filter([FromBody] FilterRequestDto dto)
         {
             try
             {
-                var columns = new Dictionary<string, object>();
-                columns.Add("UserName", "than");
-                var result = await _userService.FindManyWithPagingAsync(columns);
+                var result = await _userService.FindManyWithPagingAsync(dto);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in filter User");
-                var meta = new MetaData()
-                {
-                    Page = 1,
-                    PageSize = 10,
-                    TotalCount = 0,
-                    TotalPages = 0,
-                };
-                return BadRequest(ApiResponseHelper.CreateSuccessResponse<List<UserResponseDto>>([], meta: meta));
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<List<UserResponseDto>>(ex));
             }
         }
     }

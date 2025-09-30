@@ -1,11 +1,10 @@
 namespace Application.Common.Models
 {
-    public class PagedResult<T>
+    public class PagedData
     {
-        public List<T> Data { get; set; } = [];
         public int TotalCount { get; set; }
-        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
-        public int Page { get; set; }
-        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / Take);
+        public int Skip { get; set; }
+        public int Take { get; set; }
     }
 }

@@ -4,18 +4,11 @@ namespace Core.Entities
     {
         public Guid Id { get; set; } = Guid.NewGuid();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        private DateTime _updatedAt;
-        public DateTime? UpdatedAt
-        {
-            get
-            {
-                return _updatedAt;
-            }
-            set
-            {
-                _updatedAt = value ?? CreatedAt;
-            }
-        }
-        public virtual string? ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+        public Guid? CreatedBy { get; set; }
+        public DateTime? UpdatedAt{ get; set; }
+        public Guid? UpdatedBy { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public Guid? DeletedBy { get; set; }
+        public virtual Guid? ConcurrencyStamp { get; set; } = Guid.NewGuid();
     }
 }

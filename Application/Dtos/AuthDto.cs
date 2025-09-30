@@ -80,15 +80,16 @@ namespace Application.Dtos
 
     public record class UserResponseDto
     {
-        public required Guid Id { get; init; }
-        public required string FirstName { get; init; }
-        public required string LastName { get; init; }
-        public required string ProfilePicture { get; init; }
-        public required bool IsActive { get; init; }
-        public required DateTime CreatedAt { get; init; }
-        public required string UserName { get; init; }
-        public required string Email { get; init; }
-        public required string PhoneNumber { get; init; }
-        public IList<string> Roles { get; set; } = null!;
+        public Guid Id { get; init; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? FullName { get; set; }
+        public string? ProfilePicture { get; set; }
+        public bool IsActive { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string? UserName { get; set; }
+        public string? Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public IList<string>? Roles { get; set; }
     }
 }

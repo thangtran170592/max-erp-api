@@ -118,6 +118,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 
 // // 🔹 MediatR
 // builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ModifyOrderHandler).Assembly));
@@ -149,7 +150,14 @@ builder.Services.AddCors(options =>
                     "http://app.demax-wh.vn",
                     "http://app.demax-hr.vn",
                     "http://ui.demax-wh.vn",
-                    "http://ui.demax-hr.vn")
+                    "http://ui.demax-hr.vn",
+                    "https://demax-hr.vn",
+                    "https://demax-wh.vn",
+                    "https://app.demax-wh.vn",
+                    "https://app.demax-hr.vn",
+                    "https://ui.demax-wh.vn",
+                    "https://ui.demax-hr.vn"
+            )
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();

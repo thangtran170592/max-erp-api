@@ -6,31 +6,30 @@ namespace Application.Common.Helpers
 {
     public static class ApiResponseHelper
     {
-        public static ApiResponse<T> CreateSuccessResponse<T>(T data, string message = "Request successful", MetaData? meta = null)
+        public static ApiResponseDto<T> CreateSuccessResponse<T>(T data, string message = "Request successful")
         {
-            return new ApiResponse<T>
+            return new ApiResponseDto<T>
             {
                 Success = true,
                 Message = message,
                 Data = data,
-                Meta = meta,
                 Errors = null,
                 Timestamp = DateTime.UtcNow
             };
         }
 
-        public static ApiResponse<T> CreateFailureResponse<T>(Exception? ex = null, List<ApiError>? errors = null, string message = "Request failed")
+        public static ApiResponseDto<T> CreateFailureResponse<T>(Exception? ex = null, List<ApiErrorDto>? errors = null, string message = "Request failed")
         {
-            var errorList = errors != null ? [.. errors] : new List<ApiError>();
+            var errorList = errors != null ? [.. errors] : new List<ApiErrorDto>();
             if (ex != null)
             {
-                errorList.AddRange([..ex.Message.Split('\n').Select((message, index) => new ApiError
+                errorList.AddRange([..ex.Message.Split('\n').Select((message, index) => new ApiErrorDto
                 {
                     Field = index.ToString(),
                     Message = message
                 })]);
             }
-            return new ApiResponse<T>
+            return new ApiResponseDto<T>
             {
                 Success = false,
                 Message = message,
@@ -41,28 +40,27 @@ namespace Application.Common.Helpers
             };
         }
 
-        public static ApiResponse<List<K>> CreateSuccessResponse<T, K>(PagedResult<T> pagedResult, IMapper mapper, string message = "Request successful")
+        public static ApiResponseDto<List<K>> CreateSuccessResponse<T, K>(ApiResponseDto<List<T>> response, IMapper mapper, string message = "Request successful")
         {
-            var meta = mapper.Map<PagedResult<T>, MetaData>(pagedResult);
-            if (pagedResult.Data is null || !pagedResult.Data.Any())
+            if (response.Data == null || !response.Data.Any())
             {
-                return new ApiResponse<List<K>>
+                return new ApiResponseDto<List<K>>
                 {
                     Success = true,
                     Message = message,
                     Data = [],
-                    Meta = meta,
+                    PageData = response.PageData,
                     Errors = null,
                     Timestamp = DateTime.UtcNow
                 };
             }
-            var data = pagedResult.Data.Select(item => mapper.Map<K>(item)).ToList();
-            return new ApiResponse<List<K>>
+            var result = response.Data.Select(item => mapper.Map<K>(item)).ToList();
+            return new ApiResponseDto<List<K>>
             {
                 Success = true,
                 Message = message,
-                Data = data,
-                Meta = meta,
+                Data = result,
+                PageData = response.PageData,
                 Errors = null,
                 Timestamp = DateTime.UtcNow
             };

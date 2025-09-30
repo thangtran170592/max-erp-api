@@ -24,6 +24,7 @@ namespace Application.Dtos
     public record WarehouseStatusUpdateDto : BaseDto
     {
         public ApprovalStatus ApprovalStatus { get; init; }
+        public string ReasonRejection { get; init; } = string.Empty;
     }
 
     public record WarehouseFilterDto : BaseDto

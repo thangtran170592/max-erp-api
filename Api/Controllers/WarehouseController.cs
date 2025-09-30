@@ -66,6 +66,21 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("{id:guid}/history")]
+        public async Task<ActionResult<ApiResponseDto<IEnumerable<WarehouseHistoryDto>>>> GetWarehouseHistory(Guid id)
+        {
+            try
+            {
+                var result = await _warehouseService.GetWarehouseHistoryAsync(id);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting warehouse history");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> Create([FromBody] WarehouseRequestDto dto)
         {

@@ -13,5 +13,6 @@ namespace Application.IServices
         Task<WarehouseResponseDto?> UpdateAsync(Guid id, WarehouseRequestDto request);
         Task<int> DeleteAsync(Guid id, Guid deletedBy);
         Task<WarehouseResponseDto> UpdateStatusAsync(Guid id, WarehouseStatusUpdateDto request);
+        Task<IEnumerable<WarehouseHistoryDto>> GetWarehouseHistoryAsync(Guid warehouseId);
     }
 }

@@ -7,8 +7,11 @@ namespace Application.Dtos
         public Guid WarehouseId { get; set; }
         public string Uid { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
+        public string ReasonRejection { get; init; } = string.Empty;
         public bool Status { get; init; }
         public ApprovalStatus ApprovalStatus { get; init; }
         public string ApprovalStatusTitle => ApprovalStatus.GetTitle();
+        public UserResponseDto? CreatedByUser { get; set; }
+        public UserResponseDto? UpdatedByUser { get; set; }
     }
 }

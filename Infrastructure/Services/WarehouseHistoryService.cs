@@ -33,6 +33,7 @@ namespace Infrastructure.Services
         {
             var entity = _mapper.Map<WarehouseHistory>(dto);
             entity.Id = Guid.NewGuid();
+
             await _repository.AddOneAsync(entity);
             await _repository.SaveChangesAsync();
             return _mapper.Map<WarehouseHistoryDto>(entity);
@@ -48,8 +49,8 @@ namespace Infrastructure.Services
             entity.Name = dto.Name;
             entity.Status = dto.Status;
             entity.ApprovalStatus = dto.ApprovalStatus;
-            entity.ChangedAt = dto.ChangedAt;
-            entity.ChangedBy = dto.ChangedBy;
+            entity.UpdatedAt = dto.UpdatedAt;
+            entity.UpdatedBy = dto.UpdatedBy;
 
             _repository.UpdateOne(entity);
             await _repository.SaveChangesAsync();

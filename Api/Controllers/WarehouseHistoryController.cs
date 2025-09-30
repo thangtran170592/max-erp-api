@@ -8,7 +8,7 @@ namespace Api.Controllers
     [ApiController]
     [Route("api/warehouse-history")]
     [Authorize]
-    public class WarehouseHistoryController : ControllerBase
+    public class WarehouseHistoryController : BaseController
     {
         private readonly IWarehouseHistoryService _service;
 

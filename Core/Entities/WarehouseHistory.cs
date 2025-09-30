@@ -9,8 +9,6 @@ namespace Core.Entities
         public string Name { get; set; } = string.Empty;
         public bool Status { get; set; }
         public ApprovalStatus ApprovalStatus { get; set; }
-        public DateTime ChangedAt { get; set; }
-        public string? ChangedBy { get; set; }
         public virtual Warehouse? Warehouse { get; set; }
     }
 }

@@ -9,13 +9,13 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController(IAuthService authService) : ControllerBase
+    public class AuthController(IAuthService authService) : BaseController
     {
         private readonly IAuthService _authService = authService;
 
         [Authorize]
         [HttpGet("me")]
-        public async Task<ActionResult<ApiResponse<UserResponseDto>>> Profile()
+        public async Task<ActionResult<ApiResponseDto<UserResponseDto>>> Profile()
         {
             try
             {
@@ -24,7 +24,7 @@ namespace Api.Controllers
                 {
                     return Unauthorized(ApiResponseHelper.CreateFailureResponse<string>(errors:
                         [
-                            new ApiError() {Field = "accessToken", Message = "AccessToken is empty"},
+                            new ApiErrorDto() {Field = "accessToken", Message = "AccessToken is empty"},
                         ]
                     ));
                 }
@@ -35,7 +35,7 @@ namespace Api.Controllers
                 {
                     return Unauthorized(ApiResponseHelper.CreateFailureResponse<string>(errors:
                         [
-                            new ApiError() {Field = "Sid", Message = "Sid is empty"},
+                            new ApiErrorDto() {Field = "Sid", Message = "Sid is empty"},
                         ]
                     ));
                 }
@@ -51,7 +51,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<ApiResponse<UserResponseDto>>> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponseDto<UserResponseDto>>> LoginAsync(LoginRequestDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<ActionResult<ApiResponse<string>>> RefreshTokenAsync(CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponseDto<string>>> RefreshTokenAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace Api.Controllers
                 {
                     return Unauthorized(ApiResponseHelper.CreateFailureResponse<string>(errors:
                         [
-                            new ApiError() {Field = "Unauthorized", Message = "Unauthorized"},
+                            new ApiErrorDto() {Field = "Unauthorized", Message = "Unauthorized"},
                         ]
                     ));
                 }
@@ -113,7 +113,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<ApiResponse<int>>> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponseDto<int>>> RegisterAsync(RegisterRequestDto request, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("logout")]
-        public async Task<ActionResult<ApiResponse<int>>> LogoutAsync(CancellationToken cancellationToken = default)
+        public async Task<ActionResult<ApiResponseDto<int>>> LogoutAsync(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -136,7 +136,7 @@ namespace Api.Controllers
                 {
                     return Unauthorized(ApiResponseHelper.CreateFailureResponse<string>(errors:
                         [
-                            new ApiError() {Field = "Unauthorized", Message = "Unauthorized"},
+                            new ApiErrorDto() {Field = "Unauthorized", Message = "Unauthorized"},
                         ]
                     ));
                 }

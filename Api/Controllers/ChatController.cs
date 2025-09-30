@@ -11,7 +11,7 @@ namespace Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/chat")]
-    public class ChatController : ControllerBase
+    public class ChatController : BaseController
     {
         private readonly IChatService _chatService;
         private readonly ILogger<ChatController> _logger;
@@ -24,7 +24,7 @@ namespace Api.Controllers
 
         [HttpGet("conversations")]
         [Authorize(Policy = $"PERMISSION:{Permission.ViewChats}")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<ConversationResponseDto>>>> GetUserConversations()
+        public async Task<ActionResult<ApiResponseDto<IEnumerable<ConversationResponseDto>>>> GetUserConversations()
         {
             try
             {
@@ -40,7 +40,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("conversations")]
-        public async Task<ActionResult<ApiResponse<ConversationResponseDto>>> CreateConversation(
+        public async Task<ActionResult<ApiResponseDto<ConversationResponseDto>>> CreateConversation(
             [FromBody] ConversationRequestDto request)
         {
             try
@@ -57,7 +57,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("conversations/{conversationId}/messages")]
-        public async Task<ActionResult<ApiResponse<IEnumerable<MessageResponseDto>>>> GetMessages(
+        public async Task<ActionResult<ApiResponseDto<IEnumerable<MessageResponseDto>>>> GetMessages(
             Guid conversationId,
             [FromQuery] int skip = 0,
             [FromQuery] int take = 50)
@@ -75,7 +75,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("messages")]
-        public async Task<ActionResult<ApiResponse<MessageResponseDto>>> SendMessage(
+        public async Task<ActionResult<ApiResponseDto<MessageResponseDto>>> SendMessage(
             [FromBody] MessageRequestDto request)
         {
             try
@@ -92,7 +92,7 @@ namespace Api.Controllers
         }
 
         [HttpPost("broadcasts")]
-        public async Task<ActionResult<ApiResponse<BroadcastResponseDto>>> SendBroadcast([FromBody] BroadcastRequestDto request)
+        public async Task<ActionResult<ApiResponseDto<BroadcastResponseDto>>> SendBroadcast([FromBody] BroadcastRequestDto request)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Api.Controllers
         [HttpPost("messages/{messageId}/status")]
         public async Task<ActionResult> UpdateMessageStatus(
             Guid messageId,
-            [FromBody] UpdateMessageStatusRequest request)
+            [FromBody] UpdateMessageStatusRequestDto request)
         {
             try
             {
@@ -129,16 +129,6 @@ namespace Api.Controllers
                 _logger.LogError(ex, "Error updating message status");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
-        }
-
-        private Guid GetCurrentUserId()
-        {
-            var sidClaim = CookieHelper.GetClaimValue(Request.Cookies, JwtRegisteredClaimNames.Sid);
-            if (sidClaim == null)
-            {
-                throw new Exception("Sid claim not found");
-            }
-            return Guid.Parse(sidClaim.Value);
         }
     }
 }

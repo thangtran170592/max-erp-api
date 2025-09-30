@@ -12,7 +12,7 @@ namespace Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/notification")]
-    public class NotificationController : ControllerBase
+    public class NotificationController : BaseController
     {
         private readonly ILogger<NotificationController> _logger;
         private readonly INotificationService _notificationService;

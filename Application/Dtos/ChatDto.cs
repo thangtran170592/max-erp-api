@@ -2,7 +2,7 @@ using Core.Enums;
 
 namespace Application.Dtos
 {
-    public class MessageRequestDto
+    public record class MessageRequestDto : BaseDto
     {
         public Guid ConversationId { get; set; }
         public Guid SenderId { get; set; }
@@ -10,20 +10,18 @@ namespace Application.Dtos
         public MessageType Type { get; set; }
     }
 
-    public class MessageResponseDto
+    public record class MessageResponseDto : BaseDto
     {
-        public Guid Id { get; set; }
         public Guid ConversationId { get; set; }
         public Guid SenderId { get; set; }
         public string SenderName { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public MessageType Type { get; set; }
         public MessageStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }
         public ICollection<MessageReceiptDto> Receipts { get; set; } = [];
     }
 
-    public class ConversationRequestDto
+    public record class ConversationRequestDto : BaseDto
     {
         public string Name { get; set; } = string.Empty;
         public ConversationType Type { get; set; }
@@ -31,9 +29,8 @@ namespace Application.Dtos
         public List<Guid> MemberIds { get; set; } = [];
     }
 
-    public class ConversationResponseDto
+    public record class ConversationResponseDto : BaseDto
     {
-        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public ConversationType Type { get; set; }
         public string? LastMessage { get; set; }
@@ -42,9 +39,8 @@ namespace Application.Dtos
         public bool IsVirtual { get; set; }
     }
 
-    public class BroadcastResponseDto
+    public record class BroadcastResponseDto : BaseDto
     {
-        public Guid Id { get; set; }
         public Guid SenderId { get; set; }
         public string SenderName { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
@@ -52,11 +48,10 @@ namespace Application.Dtos
         public bool IsScheduled { get; set; }
         public DateTime? ScheduledAt { get; set; }
         public BroadcastStatus Status { get; set; }
-        public DateTime CreatedAt { get; set; }
         public ICollection<BroadcastRecipientDto> Recipients { get; set; } = [];
     }
 
-    public class MessageReceiptDto
+    public record class MessageReceiptDto : BaseDto
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
@@ -64,7 +59,7 @@ namespace Application.Dtos
         public DateTime? ReadAt { get; set; }
     }
 
-    public class ConversationMemberDto
+    public record class ConversationMemberDto : BaseDto
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
@@ -72,7 +67,7 @@ namespace Application.Dtos
         public DateTime? LastReadAt { get; set; }
     }
 
-    public class BroadcastRecipientDto
+    public record class BroadcastRecipientDto : BaseDto
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;
@@ -80,12 +75,12 @@ namespace Application.Dtos
         public DateTime? ReadAt { get; set; }
     }
 
-    public class UpdateMessageStatusRequest
+    public record class UpdateMessageStatusRequestDto : BaseDto
     {
         public ReceiptStatus Status { get; set; }
     }
 
-    public class BroadcastRequestDto
+    public record class BroadcastRequestDto : BaseDto
     {
         public string Content { get; set; } = string.Empty;
         public MessageType Type { get; set; } = MessageType.Text;
@@ -93,7 +88,7 @@ namespace Application.Dtos
         public DateTime? ScheduledAt { get; set; }
     }
 
-    public class UserTypingRequestDto
+    public record class UserTypingRequestDto : BaseDto
     {
         public Guid UserId { get; set; }
         public string UserName { get; set; } = string.Empty;

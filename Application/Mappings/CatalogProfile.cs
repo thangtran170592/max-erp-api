@@ -8,11 +8,17 @@ namespace Application.Mappings
     {
         public CatalogProfile()
         {
-            CreateMap<Warehouse, WarehouseResponseDto>();
-            CreateMap<WarehouseRequestDto, Warehouse>();
+            CreateMap<Warehouse, WarehouseResponseDto>().ReverseMap();
+            CreateMap<WarehouseHistory, WarehouseHistoryDto>().ReverseMap();
+            CreateMap<Warehouse, WarehouseHistoryDto>()
+                .ForMember(dest => dest.WarehouseId, opt => opt.Ignore());
 
-            CreateMap<WarehouseHistory, WarehouseHistoryDto>();
-            CreateMap<WarehouseHistoryDto, WarehouseHistory>();
+            CreateMap<WarehouseRequestDto, Warehouse>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
         }
     }
 }

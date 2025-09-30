@@ -9,23 +9,23 @@ namespace Api.Controllers
     [ApiController]
     [Route("api/warehouses")]
     [Authorize]
-    public class WarehouseController : ControllerBase
+    public class WarehouseController : BaseController
     {
-        private readonly IWarehouseService _service;
+        private readonly IWarehouseService _warehouseService;
         private readonly ILogger<WarehouseController> _logger;
 
-        public WarehouseController(IWarehouseService service, ILogger<WarehouseController> logger)
+        public WarehouseController(IWarehouseService warehouseService, ILogger<WarehouseController> logger)
         {
-            _service = service;
+            _warehouseService = warehouseService;
             _logger = logger;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApiResponse<IEnumerable<WarehouseResponseDto>>>> GetAll()
+        public async Task<ActionResult<ApiResponseDto<IEnumerable<WarehouseResponseDto>>>> GetAll()
         {
             try
             {
-                var result = await _service.GetAllAsync();
+                var result = await _warehouseService.GetAllAsync();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(result));
             }
             catch (Exception ex)
@@ -35,12 +35,27 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<WarehouseResponseDto>>> GetById(Guid id)
+        [HttpPost("search")]
+        public async Task<ActionResult<ApiResponseDto<List<WarehouseResponseDto>>>> Search([FromBody] FilterRequestDto dto)
         {
             try
             {
-                var result = await _service.GetByIdAsync(id);
+                var result = await _warehouseService.GetManyWithPagingAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in filter User");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<List<UserResponseDto>>(ex));
+            }
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> GetById(Guid id)
+        {
+            try
+            {
+                var result = await _warehouseService.GetByIdAsync(id);
                 if (result == null) return NotFound();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(result));
             }
@@ -52,11 +67,14 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ApiResponse<WarehouseResponseDto>>> Create([FromBody] WarehouseRequestDto dto)
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> Create([FromBody] WarehouseRequestDto dto)
         {
             try
             {
-                var created = await _service.CreateAsync(dto);
+                var userId = GetCurrentUserId();
+                dto.CreatedBy = userId;
+                dto.CreatedAt = DateTime.UtcNow;
+                var created = await _warehouseService.CreateAsync(dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(created));
             }
             catch (Exception ex)
@@ -67,12 +85,13 @@ namespace Api.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult<ApiResponse<WarehouseResponseDto>>> Update(Guid id, [FromBody] WarehouseRequestDto dto)
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> Update(Guid id, [FromBody] WarehouseRequestDto dto)
         {
             try
             {
-                var updated = await _service.UpdateAsync(id, dto);
-                if (updated == null) return NotFound();
+                var userId = GetCurrentUserId();
+                dto.UpdatedBy = userId;
+                var updated = await _warehouseService.UpdateAsync(id, dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
             }
             catch (Exception ex)
@@ -82,14 +101,37 @@ namespace Api.Controllers
             }
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [HttpPatch("{id:guid}")]
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> UpdateStatus(Guid id, [FromBody] WarehouseStatusUpdateDto dto)
         {
-            // Nếu bạn có phương thức DeleteAsync trong service thì dùng:
-            // var deleted = await _service.DeleteAsync(id);
-            // if (!deleted) return NotFound();
-            // return NoContent();
-            return StatusCode(501); // Not Implemented
+            try
+            {
+                var userId = GetCurrentUserId();
+                dto.UpdatedBy = userId;
+                var updated = await _warehouseService.UpdateStatusAsync(id, dto);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating warehouse status");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<ApiResponseDto<int>>> Delete(Guid id)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var deleted = await _warehouseService.DeleteAsync(id, userId);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(deleted));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting warehouse");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
         }
     }
 }

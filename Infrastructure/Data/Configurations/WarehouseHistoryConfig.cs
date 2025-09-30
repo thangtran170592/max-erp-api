@@ -27,12 +27,6 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.ApprovalStatus)
                 .IsRequired();
 
-            builder.Property(x => x.ChangedAt)
-                .IsRequired();
-
-            builder.Property(x => x.ChangedBy)
-                .HasMaxLength(128);
-
             builder.HasOne(x => x.Warehouse)
                 .WithMany()
                 .HasForeignKey(x => x.WarehouseId)

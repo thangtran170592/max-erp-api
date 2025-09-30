@@ -1,11 +1,11 @@
 using System.Linq.Expressions;
-using Application.Common.Models;
+using Application.Dtos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 namespace Application.IRepositories
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
-        Task<PagedResult<TEntity>> FindManyWithPagingAsync(Dictionary<string, object>? filters = null, int page = 1, int pageSize = 10);
+        Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request);
         Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> FindManyAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>>[]? filters = null, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);

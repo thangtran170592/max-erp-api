@@ -46,32 +46,12 @@ namespace Infrastructure.Repositories
             {
                 foreach (var filter in request.Filters)
                 {
-                    var property = typeof(TEntity).GetProperty(filter.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    var property = typeof(TEntity).GetProperty(filter.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                     if (property == null) continue;
-
                     var parameter = Expression.Parameter(typeof(TEntity), "x");
                     var member = Expression.Property(parameter, property);
-                    var constant = Expression.Constant(filter.Value);
-
-                    Expression? body;
-
-                    if (property.PropertyType == typeof(string))
-                    {
-                        // x.Property != null && x.Property.Contains(filter.Value)
-                        var notNull = Expression.NotEqual(member, Expression.Constant(null, typeof(string)));
-                        var contains = Expression.Call(
-                            member,
-                            typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!,
-                            constant
-                        );
-                        body = Expression.AndAlso(notNull, contains);
-                    }
-                    else
-                    {
-                        // x.Property == filter.Value
-                        body = Expression.Equal(member, constant);
-                    }
-
+                    var constant = Expression.Constant(Convert.ChangeType(filter.Value, property.PropertyType));
+                    var body = Expression.Equal(member, constant);
                     var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
                     query = query.Where(lambda);
                 }

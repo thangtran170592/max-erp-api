@@ -30,10 +30,16 @@ namespace Application.Dtos
 
     public class FilterRequestDto
     {
-        public Dictionary<string, object>? Filters { get; set; }
+        public List<FilterDto>? Filters { get; set; }
         public List<SortDto> Sorts { get; set; } = [new SortDto { Field = "CreatedAt", Dir = "desc" }];
         public string? SearchTerm { get; set; }
         public PageData PagedData { get; set; } = new PageData();
+    }
+
+    public class FilterDto
+    {
+        public string Field { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
     }
 
     public class SortDto

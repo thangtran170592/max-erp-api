@@ -10,7 +10,7 @@ namespace Application.Utils
 {
     public static class JwtToken
     {
-        public static TokenResponseDto GenerateJwtToken(User user, IConfiguration config, IList<string> roles)
+        public static TokenResponseDto GenerateJwtToken(ApplicationUser user, IConfiguration config, IList<string> roles)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"] ?? string.Empty));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

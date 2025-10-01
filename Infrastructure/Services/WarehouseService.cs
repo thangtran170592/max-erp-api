@@ -1,11 +1,9 @@
 using Application.Common.Helpers;
-using Application.Common.Models;
 using Application.Dtos;
 using Application.IRepositories;
 using Application.IServices;
 using AutoMapper;
 using Core.Entities;
-using Core.Enums;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -60,23 +58,34 @@ namespace Infrastructure.Services
             return _mapper.Map<WarehouseResponseDto>(entity);
         }
 
+        public async Task<bool> IsExistAsync(System.Linq.Expressions.Expression<Func<Warehouse, bool>> predicate)
+        {
+            return await _wareHouseRepository.FindOneAsync(predicate) != null;
+        }
+
         public async Task<WarehouseResponseDto?> UpdateAsync(Guid id, WarehouseRequestDto request)
         {
-            var entity = await _wareHouseRepository.FindOneAsync(x => x.Id == id);
-            if (entity == null) return null;
+            var wareHouse = await _wareHouseRepository.FindOneAsync(x => x.Id == id);
+            if (wareHouse == null) return null;
 
-            entity = _mapper.Map<Warehouse>(request);
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.UpdatedBy = request.UpdatedBy;
+            wareHouse.Name = request.Name;
+            wareHouse.Status = request.Status;
+            wareHouse.UpdatedAt = DateTime.UtcNow;
+            wareHouse.UpdatedBy = request.UpdatedBy;
 
-            _wareHouseRepository.UpdateOne(entity);
+            _wareHouseRepository.UpdateOne(wareHouse);
 
-            var warehouseHistory = _mapper.Map<WarehouseHistory>(entity);
-            warehouseHistory.WarehouseId = entity.Id;
-            _wareHouseHistoryRepository.UpdateOne(warehouseHistory);
+            var warehouseHistory = _mapper.Map<WarehouseHistory>(wareHouse);
+            warehouseHistory.Id = Guid.NewGuid();
+            warehouseHistory.Uid = wareHouse.Uid;
+            warehouseHistory.WarehouseId = wareHouse.Id;
+            warehouseHistory.Status = request.Status;
+            warehouseHistory.UpdatedAt = DateTime.UtcNow;
+            warehouseHistory.UpdatedBy = request.UpdatedBy;
+            await _wareHouseHistoryRepository.AddOneAsync(warehouseHistory);
 
             await _wareHouseRepository.SaveChangesAsync();
-            return _mapper.Map<WarehouseResponseDto>(entity);
+            return _mapper.Map<WarehouseResponseDto>(wareHouse);
         }
 
         public async Task<int> DeleteAsync(Guid id, Guid deletedBy)
@@ -101,6 +110,7 @@ namespace Infrastructure.Services
 
             var warehouseHistory = _mapper.Map<WarehouseHistory>(wareHouse);
             warehouseHistory.Id = Guid.NewGuid();
+            warehouseHistory.Uid = wareHouse.Uid;
             warehouseHistory.WarehouseId = wareHouse.Id;
             warehouseHistory.ReasonRejection = request.ReasonRejection;
             warehouseHistory.ApprovalStatus = request.ApprovalStatus;
@@ -116,40 +126,40 @@ namespace Infrastructure.Services
         public async Task<IEnumerable<WarehouseHistoryDto>> GetWarehouseHistoryAsync(Guid warehouseId)
         {
             var warehouseHistoriesQuery = from warehouseHistory in _dbContext.WarehouseHistories
-                        where warehouseHistory.WarehouseId == warehouseId
-                        join creatorUser in _dbContext.Users on warehouseHistory.CreatedBy equals creatorUser.Id into createdGroup
-                        from createdUser in createdGroup.DefaultIfEmpty()
-                        join updatedUser in _dbContext.Users on warehouseHistory.UpdatedBy equals updatedUser.Id into updatedGroup
-                        from updatedUser in updatedGroup.DefaultIfEmpty()
-                        select new WarehouseHistoryDto
-                        {
-                            WarehouseId = warehouseHistory.WarehouseId,
-                            Uid = warehouseHistory.Uid,
-                            Name = warehouseHistory.Name,
-                            ReasonRejection = warehouseHistory.ReasonRejection,
-                            Status = warehouseHistory.Status,
-                            ApprovalStatus = warehouseHistory.ApprovalStatus,
-                            CreatedAt = warehouseHistory.CreatedAt,
-                            CreatedBy = warehouseHistory.CreatedBy,
-                            UpdatedAt = warehouseHistory.UpdatedAt,
-                            UpdatedBy = warehouseHistory.UpdatedBy,
-                            CreatedByUser = createdUser == null ? null : new UserResponseDto
-                            {
-                                Id = createdUser.Id,
-                                FullName = createdUser.FullName,
-                                UserName = createdUser.UserName,
-                                Email = createdUser.Email,
-                                ProfilePicture = createdUser.ProfilePicture,
-                            },
-                            UpdatedByUser = updatedUser == null ? null : new UserResponseDto
-                            {
-                                Id = updatedUser.Id,
-                                FullName = updatedUser.FullName,
-                                UserName = updatedUser.UserName,
-                                Email = updatedUser.Email,
-                                ProfilePicture = updatedUser.ProfilePicture,
-                            }
-                        };
+                                          where warehouseHistory.WarehouseId == warehouseId
+                                          join creatorUser in _dbContext.Users on warehouseHistory.CreatedBy equals creatorUser.Id into createdGroup
+                                          from createdUser in createdGroup.DefaultIfEmpty()
+                                          join updatedUser in _dbContext.Users on warehouseHistory.UpdatedBy equals updatedUser.Id into updatedGroup
+                                          from updatedUser in updatedGroup.DefaultIfEmpty()
+                                          select new WarehouseHistoryDto
+                                          {
+                                              WarehouseId = warehouseHistory.WarehouseId,
+                                              Uid = warehouseHistory.Uid,
+                                              Name = warehouseHistory.Name,
+                                              ReasonRejection = warehouseHistory.ReasonRejection,
+                                              Status = warehouseHistory.Status,
+                                              ApprovalStatus = warehouseHistory.ApprovalStatus,
+                                              CreatedAt = warehouseHistory.CreatedAt,
+                                              CreatedBy = warehouseHistory.CreatedBy,
+                                              UpdatedAt = warehouseHistory.UpdatedAt,
+                                              UpdatedBy = warehouseHistory.UpdatedBy,
+                                              CreatedByUser = createdUser == null ? null : new UserResponseDto
+                                              {
+                                                  Id = createdUser.Id,
+                                                  FullName = createdUser.FullName,
+                                                  UserName = createdUser.UserName,
+                                                  Email = createdUser.Email,
+                                                  ProfilePicture = createdUser.ProfilePicture,
+                                              },
+                                              UpdatedByUser = updatedUser == null ? null : new UserResponseDto
+                                              {
+                                                  Id = updatedUser.Id,
+                                                  FullName = updatedUser.FullName,
+                                                  UserName = updatedUser.UserName,
+                                                  Email = updatedUser.Email,
+                                                  ProfilePicture = updatedUser.ProfilePicture,
+                                              }
+                                          };
             var histories = await warehouseHistoriesQuery.AsNoTracking().ToListAsync();
             if (histories == null) throw new Exception("Warehouse not found");
             return histories;

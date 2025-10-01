@@ -6,19 +6,19 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations
 {
-    public class IdentityConfig : IEntityTypeConfiguration<IdentityRole<Guid>>
+    public class IdentityConfig : IEntityTypeConfiguration<ApplicationRole>
     {
-        public void Configure(EntityTypeBuilder<IdentityRole<Guid>> builder)
+        public void Configure(EntityTypeBuilder<ApplicationRole> builder)
         {
-            builder.ToTable("Roles");
+            builder.ToTable("ApplicationRoles");
         }
     }
 
-    public class UserConfig : IEntityTypeConfiguration<User>
+    public class UserConfig : IEntityTypeConfiguration<ApplicationUser>
     {
-        public void Configure(EntityTypeBuilder<User> builder)
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("ApplicationUsers");
             builder.HasKey(e => e.Id);
 
             builder.Property(u => u.OrderNumber)
@@ -44,7 +44,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityUserClaim<Guid>> builder)
         {
-            builder.ToTable("User_Claims");
+            builder.ToTable("ApplicationUser_Claims");
         }
     }
 
@@ -52,7 +52,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityRoleClaim<Guid>> builder)
         {
-            builder.ToTable("Role_Claims");
+            builder.ToTable("ApplicationRole_Claims");
         }
     }
 
@@ -60,7 +60,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityUserRole<Guid>> builder)
         {
-            builder.ToTable("User_Roles");
+            builder.ToTable("ApplicationUser_Roles");
         }
     }
 
@@ -68,7 +68,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityUserLogin<Guid>> builder)
         {
-            builder.ToTable("User_Logins");
+            builder.ToTable("ApplicationUser_Logins");
         }
     }
 
@@ -76,7 +76,7 @@ namespace Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<IdentityUserToken<Guid>> builder)
         {
-            builder.ToTable("User_Tokens");
+            builder.ToTable("ApplicationUser_Tokens");
         }
     }
 }

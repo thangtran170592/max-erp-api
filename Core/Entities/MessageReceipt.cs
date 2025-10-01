@@ -9,6 +9,6 @@ namespace Core.Entities
         public ReceiptStatus Status { get; set; }
         public DateTime? ReadAt { get; set; }
         public virtual Message Message { get; set; } = null!;
-        public virtual User User { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
     }
 }

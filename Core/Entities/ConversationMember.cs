@@ -9,6 +9,6 @@ namespace Core.Entities
         public string Role { get; set; } = ChatRole.Member.GetTitle();
         public DateTime? LastReadAt { get; set; }
         public virtual Conversation Conversation { get; set; } = null!;
-        public virtual User User { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
     }
 }

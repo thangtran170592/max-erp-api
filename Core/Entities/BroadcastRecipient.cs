@@ -10,6 +10,6 @@ namespace Core.Entities
         public DateTime? ReadAt { get; set; }
         
         public virtual Broadcast Broadcast { get; set; } = null!;
-        public virtual User User { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
     }
 }

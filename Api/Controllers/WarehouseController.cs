@@ -66,6 +66,21 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("exists/{uid}")]
+        public async Task<ActionResult<ApiResponseDto<bool>>> Exists(string uid)
+        {
+            try
+            {
+                var result = await _warehouseService.IsExistAsync(entry => entry.Uid == uid);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(result));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if warehouse exists");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpGet("{id:guid}/history")]
         public async Task<ActionResult<ApiResponseDto<IEnumerable<WarehouseHistoryDto>>>> GetWarehouseHistory(Guid id)
         {

@@ -9,10 +9,10 @@ namespace Infrastructure.Services
 {
     public class UserService : IUserService
     {
-        private readonly IGenericRepository<User> _userRepository;
+        private readonly IGenericRepository<ApplicationUser> _userRepository;
         private readonly IMapper _mapper;
         public UserService(
-            IGenericRepository<User> userRepository,
+            IGenericRepository<ApplicationUser> userRepository,
              IMapper mapper)
         {
             _userRepository = userRepository;
@@ -22,7 +22,7 @@ namespace Infrastructure.Services
         public async Task<ApiResponseDto<List<UserResponseDto>>> FindManyWithPagingAsync(FilterRequestDto request)
         {
             var result = await _userRepository.FindManyWithPagingAsync(request);
-            var response = ApiResponseHelper.CreateSuccessResponse<User, UserResponseDto>(result, _mapper);
+            var response = ApiResponseHelper.CreateSuccessResponse<ApplicationUser, UserResponseDto>(result, _mapper);
             return response;
         }
     }

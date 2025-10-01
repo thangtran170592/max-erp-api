@@ -15,8 +15,8 @@ namespace Infrastructure.Services
     public class AuthService : IAuthService
     {
         private readonly ILogger<AuthService> _logger;
-        private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly IGenericRepository<RefreshToken> _repositoryRefreshToken;
         private readonly ApplicationDbContext _context;
@@ -24,11 +24,11 @@ namespace Infrastructure.Services
 
         public AuthService(
             ApplicationDbContext context,
-            UserManager<User> userManager,
+            UserManager<ApplicationUser> userManager,
             IConfiguration config,
             ILogger<AuthService> logger,
             IMapper mapper,
-            RoleManager<IdentityRole<Guid>> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             IGenericRepository<RefreshToken> repositoryRefreshToken)
         {
             _userManager = userManager;
@@ -130,7 +130,7 @@ namespace Infrastructure.Services
         {
             try
             {
-                var user = new User
+                var user = new ApplicationUser
                 {
                     UserName = request.Username,
                     AccountStatus = request.AccountStatus
@@ -148,7 +148,7 @@ namespace Infrastructure.Services
                     foreach (var role in request.Roles)
                     {
                         if (!await _roleManager.RoleExistsAsync(role))
-                            await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
+                            await _roleManager.CreateAsync(new ApplicationRole(role));
                     }
 
                     var roleResult = await _userManager.AddToRolesAsync(user, request.Roles);

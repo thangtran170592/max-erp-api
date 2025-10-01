@@ -68,7 +68,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
    });
 
 // 🔹 Identity
-builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 

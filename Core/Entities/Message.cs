@@ -10,7 +10,7 @@ namespace Core.Entities
         public MessageType Type { get; set; }
         public MessageStatus Status { get; set; }
         public virtual Conversation Conversation { get; set; } = null!;
-        public virtual User Sender { get; set; } = null!;
+        public virtual ApplicationUser Sender { get; set; } = null!;
         public virtual ICollection<MessageReceipt> Receipts { get; set; } = [];
     }
 }

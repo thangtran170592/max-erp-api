@@ -1,6 +1,6 @@
-using Application.Common.Models;
+using System.Linq.Expressions;
 using Application.Dtos;
-using Core.Enums;
+using Core.Entities;
 
 namespace Application.IServices
 {
@@ -14,5 +14,6 @@ namespace Application.IServices
         Task<int> DeleteAsync(Guid id, Guid deletedBy);
         Task<WarehouseResponseDto> UpdateStatusAsync(Guid id, WarehouseStatusUpdateDto request);
         Task<IEnumerable<WarehouseHistoryDto>> GetWarehouseHistoryAsync(Guid warehouseId);
+        Task<bool> IsExistAsync(Expression<Func<Warehouse, bool>> predicate);
     }
 }

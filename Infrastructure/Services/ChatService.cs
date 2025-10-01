@@ -2,7 +2,6 @@ using Application.Common.Security;
 using Application.Dtos;
 using Application.IServices;
 using AutoMapper;
-using Core.Constants;
 using Core.Entities;
 using Core.Enums;
 using Infrastructure.Data;
@@ -14,12 +13,12 @@ namespace Infrastructure.Services
     public class ChatService : IChatService
     {
         private readonly ApplicationDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
 
         public ChatService(
             ApplicationDbContext context,
-            UserManager<User> userManager,
+            UserManager<ApplicationUser> userManager,
             IMapper mapper)
         {
             _context = context;
@@ -176,7 +175,7 @@ namespace Infrastructure.Services
                 .OrderByDescending(c => c.LastMessageAt)
                 .ToListAsync();
 
-            List<User> targetUsers;
+            List<ApplicationUser> targetUsers;
             if (isAdmin)
             {
                 // Admin: lấy tất cả user khác trừ chính mình

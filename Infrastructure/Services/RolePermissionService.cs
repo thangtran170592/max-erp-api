@@ -7,12 +7,12 @@ namespace Infrastructure.Services
 {
     public class RolePermissionService : IRolePermissionService
     {
-        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
-        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public RolePermissionService(
-            RoleManager<IdentityRole<Guid>> roleManager,
-            UserManager<User> userManager)
+            RoleManager<ApplicationRole> roleManager,
+            UserManager<ApplicationUser> userManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -25,7 +25,7 @@ namespace Infrastructure.Services
             {
                 if (!await _roleManager.RoleExistsAsync(roleName))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
+                    await _roleManager.CreateAsync(new ApplicationRole(roleName));
                 }
             }
 

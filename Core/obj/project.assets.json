@@ -792,24 +792,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Administrator\\.nuget\\packages\\": {}
+    "/Users/kevin/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\max-erp-api\\Core\\Core.csproj",
+      "projectUniqueName": "/Users/kevin/Documents/Projects/MiniStore/Core/Core.csproj",
       "projectName": "Core",
-      "projectPath": "C:\\Projects\\max-erp-api\\Core\\Core.csproj",
-      "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\max-erp-api\\Core\\obj\\",
+      "projectPath": "/Users/kevin/Documents/Projects/MiniStore/Core/Core.csproj",
+      "packagesPath": "/Users/kevin/.nuget/packages/",
+      "outputPath": "/Users/kevin/Documents/Projects/MiniStore/Core/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/kevin/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "/usr/local/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -855,7 +856,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

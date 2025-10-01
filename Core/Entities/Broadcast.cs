@@ -11,7 +11,7 @@ namespace Core.Entities
         public DateTime? ScheduledAt { get; set; }
         public BroadcastStatus Status { get; set; }
         
-        public virtual User Sender { get; set; } = null!;
+        public virtual ApplicationUser Sender { get; set; } = null!;
         public virtual ICollection<BroadcastRecipient> Recipients { get; set; } = [];
     }
 }

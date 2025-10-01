@@ -1335,32 +1335,33 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Administrator\\.nuget\\packages\\": {}
+    "/Users/kevin/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projects\\max-erp-api\\Application\\Application.csproj",
+      "projectUniqueName": "/Users/kevin/Documents/Projects/MiniStore/Application/Application.csproj",
       "projectName": "Application",
-      "projectPath": "C:\\Projects\\max-erp-api\\Application\\Application.csproj",
-      "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-      "outputPath": "C:\\Projects\\max-erp-api\\Application\\obj\\",
+      "projectPath": "/Users/kevin/Documents/Projects/MiniStore/Application/Application.csproj",
+      "packagesPath": "/Users/kevin/.nuget/packages/",
+      "outputPath": "/Users/kevin/Documents/Projects/MiniStore/Application/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "/Users/kevin/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
+        "/usr/local/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Projects\\max-erp-api\\Core\\Core.csproj": {
-              "projectPath": "C:\\Projects\\max-erp-api\\Core\\Core.csproj"
+            "/Users/kevin/Documents/Projects/MiniStore/Core/Core.csproj": {
+              "projectPath": "/Users/kevin/Documents/Projects/MiniStore/Core/Core.csproj"
             }
           }
         }
@@ -1426,7 +1427,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.304/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

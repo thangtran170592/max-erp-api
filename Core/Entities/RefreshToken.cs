@@ -10,6 +10,6 @@ namespace Core.Entities
         public string? RevokedByIp { get; set; }
         public string? ReplacedByToken { get; set; }
         public Guid UserId { get; set; }
-        public virtual User User { get; set; } = null!;
+        public virtual ApplicationUser User { get; set; } = null!;
     }
 }

@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using Application.Common.Helpers;
 using Application.Common.Security;
 using Application.Dtos;

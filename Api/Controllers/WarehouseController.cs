@@ -138,6 +138,7 @@ namespace Api.Controllers
             {
                 var userId = GetCurrentUserId();
                 dto.UpdatedBy = userId;
+                dto.UpdatedAt = DateTime.UtcNow;
                 var updated = await _warehouseService.UpdateStatusAsync(id, dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
             }

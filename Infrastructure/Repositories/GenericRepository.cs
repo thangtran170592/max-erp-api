@@ -42,40 +42,25 @@ namespace Infrastructure.Repositories
             IQueryable<TEntity> query = _dbSet.AsQueryable();
 
             // Dynamic filter
-            if (request.Filters != null)
+            if (request.Filters != null && request.Filters.Any())
             {
                 foreach (var filter in request.Filters)
                 {
                     var property = typeof(TEntity).GetProperty(filter.Field, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
                     if (property == null) continue;
+
+                    if (property.PropertyType != typeof(string)) continue;
+
                     var parameter = Expression.Parameter(typeof(TEntity), "x");
                     var member = Expression.Property(parameter, property);
-                    var constant = Expression.Constant(Convert.ChangeType(filter.Value, property.PropertyType));
-                    var body = Expression.Equal(member, constant);
-                    var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
-                    query = query.Where(lambda);
-                }
-            }
-            if (!string.IsNullOrEmpty(request.SearchTerm))
-            {
-                var parameter = Expression.Parameter(typeof(TEntity), "x");
-                Expression? body = null;
 
-                foreach (var property in typeof(TEntity).GetProperties().Where(p => p.PropertyType == typeof(string)))
-                {
-                    var member = Expression.Property(parameter, property);
-                    var notNull = Expression.NotEqual(member, Expression.Constant(null, typeof(string)));
-                    var contains = Expression.Call(
-                        member,
-                        typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!,
-                        Expression.Constant(request.SearchTerm)
-                    );
-                    var condition = Expression.AndAlso(notNull, contains);
-                    body = body == null ? condition : Expression.OrElse(body, condition);
-                }
+                    var toLowerMethod = typeof(string).GetMethod(nameof(string.ToLower), Type.EmptyTypes)!;
+                    var containsMethod = typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!;
+                    var value = filter.Value?.ToString()?.ToLower() ?? string.Empty;
+                    var memberToLower = Expression.Call(member, toLowerMethod);
+                    var constant = Expression.Constant(value);
+                    var body = Expression.Call(memberToLower, containsMethod, constant);
 
-                if (body != null)
-                {
                     var lambda = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
                     query = query.Where(lambda);
                 }
@@ -121,6 +106,9 @@ namespace Infrastructure.Repositories
 
             return new ApiResponseDto<List<TEntity>>
             {
+                Success = true,
+                Message = "Data retrieved successfully",
+                Timestamp = DateTime.UtcNow,
                 Data = items,
                 PageData = new PagedData
                 {

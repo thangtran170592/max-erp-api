@@ -19,6 +19,12 @@ namespace Infrastructure.Data
         public DbSet<Warehouse> Warehouses => Set<Warehouse>();
         public DbSet<WarehouseHistory> WarehouseHistories => Set<WarehouseHistory>();
         public DbSet<BroadcastRecipient> BroadcastRecipients => Set<BroadcastRecipient>();
+        public DbSet<Product> Products => Set<Product>();
+        public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
+        public DbSet<Package> Packages => Set<Package>();
+        public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();
+        public DbSet<Supplier> Suppliers => Set<Supplier>();
+        public DbSet<PackageUnit> PackageUnits => Set<PackageUnit>();
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
         {

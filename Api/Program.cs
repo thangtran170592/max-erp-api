@@ -119,12 +119,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
-
-// // 🔹 MediatR
-// builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(ModifyOrderHandler).Assembly));
-// builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllOrdersHandler).Assembly));
-// builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllOrdersWithIncludesHandler).Assembly));
-// builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetOrderHandler).Assembly));
+builder.Services.AddScoped<IPackageUnitService, PackageUnitService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ISupplierService, SupplierService>();
+builder.Services.AddScoped<IUnitOfMeasureService, UnitOfMeasureService>();
+builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
 
 // 🔹 Fluent Validation
 builder.Services.AddFluentValidationAutoValidation();

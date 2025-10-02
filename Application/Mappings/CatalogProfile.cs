@@ -27,6 +27,19 @@ namespace Application.Mappings
 
             CreateMap<WarehouseRequestDto, Warehouse>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
+
+            CreateMap<Product, ProductResponseDto>().ReverseMap();
+            CreateMap<ProductRequestDto, Product>();
+            CreateMap<ProductCategory, ProductCategoryResponseDto>().ReverseMap();
+            CreateMap<ProductCategoryRequestDto, ProductCategory>();
+            CreateMap<Supplier, SupplierResponseDto>().ReverseMap();
+            CreateMap<SupplierRequestDto, Supplier>();
+            CreateMap<UnitOfMeasure, UnitOfMeasureResponseDto>().ReverseMap();
+            CreateMap<UnitOfMeasureRequestDto, UnitOfMeasure>();
+            CreateMap<Package, PackageResponseDto>().ReverseMap();
+            CreateMap<PackageRequestDto, Package>();
+            CreateMap<PackageUnit, PackageUnitResponseDto>().ReverseMap();
+            CreateMap<PackageUnitRequestDto, PackageUnit>();
         }
     }
 }

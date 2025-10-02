@@ -32,9 +32,15 @@ namespace Infrastructure.Services
 
         public async Task<ApiResponseDto<List<WarehouseResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request)
         {
-            var pagedResult = await _wareHouseRepository.FindManyWithPagingAsync(request);
-            var result = ApiResponseHelper.CreateSuccessResponse<Warehouse, WarehouseResponseDto>(pagedResult, _mapper);
-            return result;
+            var result = await _wareHouseRepository.FindManyWithPagingAsync(request);
+            return new ApiResponseDto<List<WarehouseResponseDto>>
+            {
+                Data = _mapper.Map<List<WarehouseResponseDto>>(result.Data),
+                PageData = result.PageData,
+                Message = result.Message,
+                Success = result.Success,
+                Timestamp = result.Timestamp,
+            };
         }
 
         public async Task<WarehouseResponseDto?> GetByIdAsync(Guid id)

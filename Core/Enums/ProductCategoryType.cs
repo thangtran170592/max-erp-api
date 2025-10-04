@@ -11,8 +11,8 @@ namespace Core.Enums
     {
         public static string GetTitle(this ProductCategoryType type) => type switch
         {
-            ProductCategoryType.Bom => "Bill of Materials",
-            ProductCategoryType.MinMax => "Min-Max Stock",
+            ProductCategoryType.Bom => "Bom",
+            ProductCategoryType.MinMax => "Min-Max",
             _ => "Unknown"
         };
     }

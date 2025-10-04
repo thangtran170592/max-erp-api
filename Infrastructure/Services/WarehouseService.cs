@@ -30,6 +30,12 @@ namespace Infrastructure.Services
             return _mapper.Map<IEnumerable<WarehouseResponseDto>>(warehouses);
         }
 
+        public async Task<IEnumerable<WarehouseResponseDto>> GetManyAsync(System.Linq.Expressions.Expression<Func<Warehouse, bool>> predicate)
+        {
+            var entities = await _wareHouseRepository.FindManyAsync(predicate);
+            return _mapper.Map<IEnumerable<WarehouseResponseDto>>(entities);
+        }
+
         public async Task<ApiResponseDto<List<WarehouseResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request)
         {
             var result = await _wareHouseRepository.FindManyWithPagingAsync(request);

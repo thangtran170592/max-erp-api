@@ -34,13 +34,21 @@ namespace Infrastructure.Repositories
             return await query.Where(predicate).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request)
+        public async Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default)
         {
             if (request.PagedData.Skip < 0) request.PagedData.Skip = 0;
             if (request.PagedData.Take <= 0) request.PagedData.Take = 10;
 
             IQueryable<TEntity> query = _dbSet.AsQueryable();
 
+            // Includes
+            if (includes != null && includes.Any())
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
             // Dynamic filter
             if (request.Filters != null && request.Filters.Any())
             {

@@ -7,6 +7,7 @@ namespace Application.IServices
     public interface ISupplierService
     {
         Task<IEnumerable<SupplierResponseDto>> GetAllAsync();
+        Task<IEnumerable<SupplierResponseDto>> GetManyAsync(Expression<Func<Supplier, bool>> predicate);
         Task<ApiResponseDto<List<SupplierResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request);
         Task<SupplierResponseDto?> GetByIdAsync(Guid id);
         Task<SupplierResponseDto> CreateAsync(SupplierRequestDto request);

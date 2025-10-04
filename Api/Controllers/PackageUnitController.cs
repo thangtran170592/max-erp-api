@@ -66,21 +66,6 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("exists/{uid}")]
-        public async Task<ActionResult<ApiResponseDto<bool>>> Exists(string uid)
-        {
-            try
-            {
-                var exists = await _servicePackageUnit.IsExistAsync(pu => pu.Uid == uid);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(exists));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error checking package unit exists");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-
         [HttpPost]
         public async Task<ActionResult<ApiResponseDto<PackageUnitResponseDto>>> Create([FromBody] PackageUnitRequestDto dto)
         {
@@ -113,23 +98,6 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating package unit");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-
-        [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDto<PackageUnitResponseDto>>> UpdateStatus(Guid id, [FromBody] PackageUnitStatusUpdateDto dto)
-        {
-            try
-            {
-                var userId = GetCurrentUserId();
-                dto.UpdatedBy = userId;
-                var updated = await _servicePackageUnit.UpdateStatusAsync(id, dto);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating package unit status");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }

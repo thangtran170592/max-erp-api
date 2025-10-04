@@ -35,6 +35,21 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetActive()
+        {
+            try
+            {
+                var data = await _serviceProduct.GetManyAsync(p => p.Status);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting active products");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpPost("search")]
         public async Task<ActionResult<ApiResponseDto<List<ProductResponseDto>>>> Search([FromBody] FilterRequestDto dto)
         {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Core.Enums;
 
 namespace Core.Entities
 {
@@ -20,5 +21,6 @@ namespace Core.Entities
         public decimal Width { get; set; }
         public decimal Height { get; set; }
         public bool Status { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; }
     }
 }

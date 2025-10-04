@@ -35,6 +35,21 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<UnitOfMeasureResponseDto>>> GetActive()
+        {
+            try
+            {
+                var data = await _serviceUnitOfMeasure.GetManyAsync(um => um.Status);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting active units");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpPost("search")]
         public async Task<ActionResult<ApiResponseDto<List<UnitOfMeasureResponseDto>>>> Search([FromBody] FilterRequestDto dto)
         {

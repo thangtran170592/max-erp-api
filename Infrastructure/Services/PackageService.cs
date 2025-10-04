@@ -24,6 +24,12 @@ namespace Infrastructure.Services
             return _mapper.Map<IEnumerable<PackageResponseDto>>(entities);
         }
 
+        public async Task<IEnumerable<PackageResponseDto>> GetManyAsync(Expression<Func<Package, bool>> predicate)
+        {
+            var entities = await _repositoryPackage.FindManyAsync(predicate);
+            return _mapper.Map<IEnumerable<PackageResponseDto>>(entities);
+        }
+
         public async Task<ApiResponseDto<List<PackageResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request)
         {
             var result = await _repositoryPackage.FindManyWithPagingAsync(request);
@@ -49,6 +55,7 @@ namespace Infrastructure.Services
             var entity = _mapper.Map<Package>(request);
             entity.Id = Guid.NewGuid();
             await _repositoryPackage.AddOneAsync(entity);
+            await _repositoryPackage.SaveChangesAsync();
             return _mapper.Map<PackageResponseDto>(entity);
         }
 

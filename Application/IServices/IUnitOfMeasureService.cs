@@ -7,6 +7,7 @@ namespace Application.IServices
     public interface IUnitOfMeasureService
     {
         Task<IEnumerable<UnitOfMeasureResponseDto>> GetAllAsync();
+        Task<IEnumerable<UnitOfMeasureResponseDto>> GetManyAsync(Expression<Func<UnitOfMeasure, bool>> predicate);
         Task<ApiResponseDto<List<UnitOfMeasureResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request);
         Task<UnitOfMeasureResponseDto?> GetByIdAsync(Guid id);
         Task<UnitOfMeasureResponseDto> CreateAsync(UnitOfMeasureRequestDto request);

@@ -7,6 +7,7 @@ namespace Application.IServices
     public interface IWarehouseService
     {
         Task<IEnumerable<WarehouseResponseDto>> GetAllAsync();
+        Task<IEnumerable<WarehouseResponseDto>> GetManyAsync(Expression<Func<Warehouse, bool>> predicate);
         Task<ApiResponseDto<List<WarehouseResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request);
         Task<WarehouseResponseDto?> GetByIdAsync(Guid id);
         Task<WarehouseResponseDto> CreateAsync(WarehouseRequestDto request);

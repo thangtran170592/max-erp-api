@@ -38,7 +38,12 @@ namespace Application.Mappings
             CreateMap<UnitOfMeasureRequestDto, UnitOfMeasure>();
             CreateMap<Package, PackageResponseDto>().ReverseMap();
             CreateMap<PackageRequestDto, Package>();
-            CreateMap<PackageUnit, PackageUnitResponseDto>().ReverseMap();
+            CreateMap<PackageUnit, PackageUnitResponseDto>()
+                .ForMember(d => d.PackageName, opt => opt.MapFrom(s => s.Package != null ? s.Package.Uid : string.Empty))
+                .ForMember(d => d.UnitName, opt => opt.MapFrom(s => s.Unit != null ? s.Unit.Uid : string.Empty))
+                .ReverseMap()
+                .ForMember(d => d.Package, opt => opt.Ignore())
+                .ForMember(d => d.Unit, opt => opt.Ignore());
             CreateMap<PackageUnitRequestDto, PackageUnit>();
         }
     }

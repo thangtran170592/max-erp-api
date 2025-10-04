@@ -24,6 +24,12 @@ namespace Infrastructure.Services
             return _mapper.Map<IEnumerable<ProductResponseDto>>(entities);
         }
 
+        public async Task<IEnumerable<ProductResponseDto>> GetManyAsync(Expression<Func<Product, bool>> predicate)
+        {
+            var entities = await _repository.FindManyAsync(predicate);
+            return _mapper.Map<IEnumerable<ProductResponseDto>>(entities);
+        }
+
         public async Task<ApiResponseDto<List<ProductResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request)
         {
             var result = await _repository.FindManyWithPagingAsync(request);

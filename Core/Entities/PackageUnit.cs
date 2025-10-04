@@ -7,7 +7,8 @@ namespace Core.Entities
 {
     public class PackageUnit : BaseEntity
     {
-        public required string Uid { get; set; }
+        public required Guid PackageId { get; set; }
+        public virtual Package? Package { get; set; }
         public int Level { get; set; }
         public decimal Quantity { get; set; }
         public Guid UnitId { get; set; }

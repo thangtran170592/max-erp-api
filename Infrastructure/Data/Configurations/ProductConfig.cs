@@ -35,6 +35,9 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.Height)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Property(x => x.ApprovalStatus)
+                .IsRequired();
+                
             builder.HasOne(x => x.Category)
                 .WithMany()
                 .HasForeignKey(x => x.CategoryId)

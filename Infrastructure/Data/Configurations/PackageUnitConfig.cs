@@ -11,9 +11,8 @@ namespace Infrastructure.Data.Configurations
             builder.ToTable("PackageUnits");
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Uid)
-                .IsRequired()
-                .HasMaxLength(50);
+            builder.Property(x => x.PackageId)
+                .IsRequired();
 
             builder.Property(x => x.Level)
                 .IsRequired();

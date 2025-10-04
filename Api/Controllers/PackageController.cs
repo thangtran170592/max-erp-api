@@ -35,6 +35,21 @@ namespace Api.Controllers
             }
         }
 
+       [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<PackageResponseDto>>> GetActive()
+        {
+            try
+            {
+                var data = await _servicePackage.GetManyAsync(p => p.Status);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting active packages");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpPost("search")]
         public async Task<ActionResult<ApiResponseDto<List<PackageResponseDto>>>> Search([FromBody] FilterRequestDto dto)
         {
@@ -62,6 +77,22 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting package");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
+
+        [HttpGet("exists/{uid}")]
+        public async Task<ActionResult<ApiResponseDto<bool>>> Exists(string uid)
+        {
+            try
+            {
+                var exists = await _servicePackage.IsExistAsync(pu => pu.Uid == uid);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(exists));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking package exists");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }

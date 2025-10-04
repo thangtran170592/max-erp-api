@@ -55,6 +55,7 @@ namespace Infrastructure.Services
             var entity = _mapper.Map<Supplier>(request);
             entity.Id = Guid.NewGuid();
             await _repositorySupplier.AddOneAsync(entity);
+            await _repositorySupplier.SaveChangesAsync();
             return _mapper.Map<SupplierResponseDto>(entity);
         }
 
@@ -65,7 +66,7 @@ namespace Infrastructure.Services
 
             entity.Name = request.Name;
             entity.Address = request.Address;
-            entity.Phone = request.Phone;
+            entity.Tax = request.Tax;
             entity.Email = request.Email;
             entity.Status = request.Status;
 

@@ -1,6 +1,8 @@
+using System.Linq.Expressions;
 using Application.Common.Helpers;
 using Application.Dtos;
 using Application.IServices;
+using Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -103,7 +105,6 @@ namespace Api.Controllers
             {
                 var userId = GetCurrentUserId();
                 dto.CreatedBy = userId;
-                dto.CreatedAt = DateTime.UtcNow;
                 var created = await _serviceProduct.CreateAsync(dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(created));
             }
@@ -129,6 +130,38 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating product");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
+        [HttpPatch("{id:guid}")]
+        public async Task<ActionResult<ApiResponseDto<ProductResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateProductStatusRequestDto dto)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                dto.UpdatedBy = userId;
+                dto.UpdatedAt = DateTime.UtcNow;
+                var updated = await _serviceProduct.UpdateStatusAsync(id, dto);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating product status");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+        [HttpGet("{id:guid}/history")]
+        public async Task<ActionResult<ApiResponseDto<IEnumerable<ProductHistoryResponseDto>>>> GetHistory(Guid id)
+        {
+            try
+            {
+                var data = await _serviceProduct.GetProductHistoryAsync(id);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting product history");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }

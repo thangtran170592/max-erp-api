@@ -21,15 +21,9 @@ namespace Application.Dtos
         public string ApprovalStatusTitle => ApprovalStatus.GetTitle();
     }
 
-    public record WarehouseStatusUpdateDto : BaseDto
+    public record UpdateWarehouseStatusRequestDto : BaseDto
     {
         public ApprovalStatus ApprovalStatus { get; init; }
         public string ReasonRejection { get; init; } = string.Empty;
-    }
-
-    public record WarehouseFilterDto : BaseDto
-    {
-        public Dictionary<string, object>? Filters { get; init; }
-        public PagedData? PagedData { get; init; }
     }
 }

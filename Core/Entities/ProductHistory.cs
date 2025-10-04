@@ -6,8 +6,9 @@ using Core.Enums;
 
 namespace Core.Entities
 {
-    public class Product : BaseEntity
+    public class ProductHistory : BaseEntity
     {
+        public Guid ProductId { get; set; }
         public required string Uid { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
@@ -21,5 +22,7 @@ namespace Core.Entities
         public bool Status { get; set; }
         public ProductCategoryType Type { get; set; } = ProductCategoryType.Unknown;
         public ApprovalStatus ApprovalStatus { get; set; }
+        public string ReasonRejection { get; set; } = string.Empty;
+        public virtual Product? Product { get; set; }
     }
 }

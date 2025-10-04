@@ -132,7 +132,7 @@ namespace Api.Controllers
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> UpdateStatus(Guid id, [FromBody] WarehouseStatusUpdateDto dto)
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateWarehouseStatusRequestDto dto)
         {
             try
             {

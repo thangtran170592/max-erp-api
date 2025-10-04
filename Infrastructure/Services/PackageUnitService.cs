@@ -20,13 +20,15 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<PackageUnitResponseDto>> GetAllAsync()
         {
-            var entities = await _repositoryPackageUnit.FindAllAsync();
+            Expression<Func<PackageUnit, object>>[] includes = [static x => x.Unit!, static x => x.Package!];
+            var entities = await _repositoryPackageUnit.FindAllAsync(includes: includes);
             return _mapper.Map<IEnumerable<PackageUnitResponseDto>>(entities);
         }
 
         public async Task<IEnumerable<PackageUnitResponseDto>> GetManyAsync(Expression<Func<PackageUnit, bool>> predicate)
         {
-            var entities = await _repositoryPackageUnit.FindManyAsync(predicate);
+            Expression<Func<PackageUnit, object>>[] includes = [static x => x.Unit!, static x => x.Package!];
+            var entities = await _repositoryPackageUnit.FindManyAsync(predicate, includes);
             return _mapper.Map<IEnumerable<PackageUnitResponseDto>>(entities);
         }
 

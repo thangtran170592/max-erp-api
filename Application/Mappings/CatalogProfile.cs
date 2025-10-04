@@ -28,8 +28,31 @@ namespace Application.Mappings
             CreateMap<WarehouseRequestDto, Warehouse>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
 
-            CreateMap<Product, ProductResponseDto>().ReverseMap();
+            CreateMap<Product, ProductResponseDto>()
+                .ForMember(d => d.CategoryName,
+                    o => o.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
+                .ForMember(d => d.PackageUnitId,
+                    o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Package != null
+                        ? s.PackageUnit.Package.Id
+                        : Guid.Empty))
+                .ForMember(d => d.PackageUnitName,
+                    o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Package != null
+                        ? s.PackageUnit.Package.Name
+                        : string.Empty))
+                .ForMember(d => d.UnitOfMeasureId,
+                    o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Unit != null
+                        ? s.PackageUnit.Unit.Id
+                        : Guid.Empty))
+                .ForMember(d => d.UnitOfMeasureName,
+                    o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Unit != null
+                        ? s.PackageUnit.Unit.Name
+                        : string.Empty))
+                .ReverseMap()
+                .ForMember(d => d.PackageUnit, o => o.Ignore())
+                .ForMember(d => d.Category, o => o.Ignore());
+
             CreateMap<ProductRequestDto, Product>();
+            CreateMap<Product, ProductHistory>();
             CreateMap<ProductCategory, ProductCategoryResponseDto>().ReverseMap();
             CreateMap<ProductCategoryRequestDto, ProductCategory>();
             CreateMap<Supplier, SupplierResponseDto>().ReverseMap();
@@ -39,11 +62,14 @@ namespace Application.Mappings
             CreateMap<Package, PackageResponseDto>().ReverseMap();
             CreateMap<PackageRequestDto, Package>();
             CreateMap<PackageUnit, PackageUnitResponseDto>()
-                .ForMember(d => d.PackageName, opt => opt.MapFrom(s => s.Package != null ? s.Package.Uid : string.Empty))
-                .ForMember(d => d.UnitName, opt => opt.MapFrom(s => s.Unit != null ? s.Unit.Uid : string.Empty))
+                .ForMember(d => d.PackageName,
+                    o => o.MapFrom(s => s.Package != null ? s.Package.Name : string.Empty))
+                .ForMember(d => d.UnitName,
+                    o => o.MapFrom(s => s.Unit != null ? s.Unit.Name : string.Empty))
                 .ReverseMap()
-                .ForMember(d => d.Package, opt => opt.Ignore())
-                .ForMember(d => d.Unit, opt => opt.Ignore());
+                .ForMember(d => d.Package, o => o.Ignore())
+                .ForMember(d => d.Unit, o => o.Ignore());
+
             CreateMap<PackageUnitRequestDto, PackageUnit>();
         }
     }

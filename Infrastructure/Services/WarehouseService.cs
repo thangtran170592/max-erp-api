@@ -109,7 +109,7 @@ namespace Infrastructure.Services
             return result;
         }
 
-        public async Task<WarehouseResponseDto> UpdateStatusAsync(Guid id, WarehouseStatusUpdateDto request)
+        public async Task<WarehouseResponseDto> UpdateStatusAsync(Guid id, UpdateWarehouseStatusRequestDto request)
         {
             var wareHouse = await _wareHouseRepository.FindOneAsync(x => x.Id == id);
             if (wareHouse == null) throw new Exception("Warehouse not found");

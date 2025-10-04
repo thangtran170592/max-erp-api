@@ -20,6 +20,7 @@ namespace Infrastructure.Data
         public DbSet<WarehouseHistory> WarehouseHistories => Set<WarehouseHistory>();
         public DbSet<BroadcastRecipient> BroadcastRecipients => Set<BroadcastRecipient>();
         public DbSet<Product> Products => Set<Product>();
+        public DbSet<ProductHistory> ProductHistories => Set<ProductHistory>();
         public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
         public DbSet<Package> Packages => Set<Package>();
         public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();

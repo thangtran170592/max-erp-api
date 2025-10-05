@@ -32,10 +32,12 @@ namespace Application.Mappings
                 .ForMember(d => d.CategoryName,
                     o => o.MapFrom(s => s.Category != null ? s.Category.Name : string.Empty))
                 .ForMember(d => d.PackageUnitId,
+                    o => o.MapFrom(s => s.PackageUnit != null ? s.PackageUnit.Id : Guid.Empty))
+                .ForMember(d => d.PackageId,
                     o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Package != null
                         ? s.PackageUnit.Package.Id
                         : Guid.Empty))
-                .ForMember(d => d.PackageUnitName,
+                .ForMember(d => d.PackageName,
                     o => o.MapFrom(s => s.PackageUnit != null && s.PackageUnit.Package != null
                         ? s.PackageUnit.Package.Name
                         : string.Empty))

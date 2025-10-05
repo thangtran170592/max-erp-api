@@ -11,7 +11,8 @@ namespace Application.Dtos
         public Guid CategoryId { get; init; }
         public string CategoryName { get; init; } = string.Empty;
         public Guid PackageUnitId { get; init; }
-        public string? PackageUnitName { get; init; } = string.Empty;
+        public Guid PackageId { get; init; }
+        public string? PackageName { get; init; } = string.Empty;
         public Guid UnitOfMeasureId { get; init; }
         public string? UnitOfMeasureName { get; init; } = string.Empty;
         public decimal Length { get; init; }

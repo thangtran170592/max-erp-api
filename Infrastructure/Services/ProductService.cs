@@ -85,10 +85,13 @@ namespace Infrastructure.Services
         {
             var entity = await _repositoryProduct.FindOneAsync(x => x.Id == id);
             if (entity == null) return null;
-
+        
             entity.Uid = request.Uid;
             entity.Name = request.Name;
             entity.Price = request.Price;
+            entity.Length = request.Length;
+            entity.Width = request.Width;
+            entity.Height = request.Height;
             entity.Status = request.Status;
             entity.CategoryId = request.CategoryId;
             entity.PackageUnitId = request.PackageUnitId;

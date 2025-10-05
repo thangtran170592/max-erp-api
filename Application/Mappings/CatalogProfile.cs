@@ -52,7 +52,6 @@ namespace Application.Mappings
                 .ReverseMap()
                 .ForMember(d => d.PackageUnit, o => o.Ignore())
                 .ForMember(d => d.Category, o => o.Ignore());
-
             CreateMap<ProductRequestDto, Product>();
             CreateMap<Product, ProductHistory>();
             CreateMap<ProductCategory, ProductCategoryResponseDto>().ReverseMap();

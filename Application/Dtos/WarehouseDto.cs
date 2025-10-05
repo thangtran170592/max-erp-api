@@ -1,4 +1,3 @@
-using Application.Common.Models;
 using Core.Enums;
 
 namespace Application.Dtos

@@ -26,6 +26,13 @@ namespace Infrastructure.Data
         public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();
         public DbSet<Supplier> Suppliers => Set<Supplier>();
         public DbSet<PackageUnit> PackageUnits => Set<PackageUnit>();
+        public DbSet<Department> Departments => Set<Department>();
+        public DbSet<Position> Positions => Set<Position>();
+        public DbSet<ApprovalConfig> ApprovalConfigs { get; set; }
+        public DbSet<ApprovalFeature> ApprovalFeatures { get; set; }
+        public DbSet<ApprovalStep> ApprovalSteps { get; set; }
+        public DbSet<ApprovalInstance> ApprovalInstances { get; set; }
+        public DbSet<ApprovalAction> ApprovalActions { get; set; }
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
         {

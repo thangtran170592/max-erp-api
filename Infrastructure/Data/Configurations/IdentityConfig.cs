@@ -37,6 +37,16 @@ namespace Infrastructure.Data.Configurations
             builder.Property(u => u.Level)
                 .HasConversion<int>()
                 .IsRequired();
+                
+            builder.HasOne(u => u.Department)
+            .WithMany(d => d.Users)
+            .HasForeignKey(u => u.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(u => u.Position)
+                .WithMany(p => p.Users)
+                .HasForeignKey(u => u.PositionId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 

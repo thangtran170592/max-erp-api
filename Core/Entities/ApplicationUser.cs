@@ -6,8 +6,11 @@ namespace Core.Entities
     public class ApplicationUser : IdentityUser<Guid>
     {
         public int OrderNumber { get; private set; }
-        public string EmployeeCode { get; set; } = string.Empty;
-        public string DepartmentCode { get; set; } = string.Empty;
+        public string Uid { get; set; } = string.Empty;
+        public Guid? DepartmentId { get; set; }
+        public Guid? PositionId { get; set; }
+        public virtual Department? Department { get; set; }
+        public virtual Position? Position { get; set; }
         public string? Description { get; set; }
         public string? FullName { get; set; }
         public DateTime? DateOfBirth { get; set; }
@@ -24,6 +27,7 @@ namespace Core.Entities
         public string? LastSeenAt { get; set; }
         public UserStatus Status { get; set; } = UserStatus.Available;
         public string? StatusMessage { get; set; }
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
         // Chat related collections
         public virtual ICollection<Message> SentMessages { get; set; } = [];
@@ -31,7 +35,6 @@ namespace Core.Entities
         public virtual ICollection<ConversationMember> Conversations { get; set; } = [];
         public virtual ICollection<Broadcast> SentBroadcasts { get; set; } = [];
         public virtual ICollection<BroadcastRecipient> ReceivedBroadcasts { get; set; } = [];
-        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = [];
 
         public void AddRefreshToken(RefreshToken refreshToken)
         {

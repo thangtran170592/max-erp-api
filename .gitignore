@@ -1,0 +1,63 @@
+# Build artifacts
+bin/
+obj/
+[Bb]uild/
+[Bb]uilds/
+Debug/
+Release/
+x64/
+x86/
+ARM/
+ARM64/
+
+# VS Code
+.vscode/
+
+# User specific
+*.user
+*.rsuser
+*.suo
+*.userprefs
+
+# Logs
+*.log
+logs/
+Log/
+Logging/
+
+# Temp
+[Tt]emp/
+*.tmp
+
+# Cache
+.cache/
+.nuget/
+packages/
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# Coverage / test
+coverage/
+*.coverage
+*.coveragexml
+TestResults/
+
+# Publish output
+publish/
+dist/
+
+# Secrets (adjust if you have example files)
+appsettings.*.local.json
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Optional: ignore generated migrations snapshot backups
+*Migrations/*.sql
+
+# Node (if frontend present)
+node_modules/

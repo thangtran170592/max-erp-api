@@ -62,6 +62,7 @@
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Mono.TextTemplating.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Npgsql.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/SixLabors.ImageSharp.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.Swagger.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerGen.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/Swashbuckle.AspNetCore.SwaggerUI.dll
@@ -80,6 +81,7 @@
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/System.Security.Cryptography.ProtectedData.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/System.Security.Permissions.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/System.Windows.Extensions.dll
+/Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/zxing.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/cs/Microsoft.CodeAnalysis.resources.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/de/Microsoft.CodeAnalysis.resources.dll
 /Users/kevin/Documents/Projects/MiniStore/Api/bin/Debug/net9.0/es/Microsoft.CodeAnalysis.resources.dll

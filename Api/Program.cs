@@ -125,6 +125,7 @@ builder.Services.AddScoped<ISupplierService, SupplierService>();
 builder.Services.AddScoped<IUnitOfMeasureService, UnitOfMeasureService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
+builder.Services.AddScoped<IBarcodeService, BarcodeService>();
 
 // 🔹 Fluent Validation
 builder.Services.AddFluentValidationAutoValidation();

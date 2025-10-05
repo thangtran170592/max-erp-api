@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Enums;
 
 namespace Application.Dtos
@@ -22,7 +18,7 @@ namespace Application.Dtos
         public bool Status { get; init; }
         public string Uid { get; init; } = string.Empty;
         public ApprovalTargetType TargetType { get; init; }
-        public string TargetValue { get; init; } = string.Empty;
+        public Guid TargetValue { get; init; }
         public List<ApprovalStepDto> Steps { get; init; } = new();
     }
 
@@ -32,7 +28,7 @@ namespace Application.Dtos
         public ApprovalFeatureDto ApprovalFeature { get; set; } = null!;
         public int StepOrder { get; init; }
         public ApprovalTargetType TargetType { get; init; }
-        public string TargetValue { get; init; } = string.Empty;
+        public Guid TargetValue { get; init; }
     }
 
     public record ApprovalInstanceRequestDto : BaseDto

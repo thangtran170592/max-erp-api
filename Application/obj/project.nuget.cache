@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "3b09sCZpk9U=",
+  "dgSpecHash": "wCqn9pJrFVM=",
   "success": true,
   "projectFilePath": "/Users/kevin/Documents/Projects/MiniStore/Application/Application.csproj",
   "expectedPackageFiles": [
@@ -35,7 +35,9 @@
     "/Users/kevin/.nuget/packages/microsoft.identitymodel.protocols/8.0.1/microsoft.identitymodel.protocols.8.0.1.nupkg.sha512",
     "/Users/kevin/.nuget/packages/microsoft.identitymodel.protocols.openidconnect/8.0.1/microsoft.identitymodel.protocols.openidconnect.8.0.1.nupkg.sha512",
     "/Users/kevin/.nuget/packages/microsoft.identitymodel.tokens/8.14.0/microsoft.identitymodel.tokens.8.14.0.nupkg.sha512",
-    "/Users/kevin/.nuget/packages/system.identitymodel.tokens.jwt/8.14.0/system.identitymodel.tokens.jwt.8.14.0.nupkg.sha512"
+    "/Users/kevin/.nuget/packages/sixlabors.imagesharp/3.1.11/sixlabors.imagesharp.3.1.11.nupkg.sha512",
+    "/Users/kevin/.nuget/packages/system.identitymodel.tokens.jwt/8.14.0/system.identitymodel.tokens.jwt.8.14.0.nupkg.sha512",
+    "/Users/kevin/.nuget/packages/zxing.net/0.16.10/zxing.net.0.16.10.nupkg.sha512"
   ],
   "logs": []
 }

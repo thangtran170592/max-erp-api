@@ -33,6 +33,7 @@ namespace Infrastructure.Data
         public DbSet<ApprovalStep> ApprovalSteps { get; set; }
         public DbSet<ApprovalInstance> ApprovalInstances { get; set; }
         public DbSet<ApprovalAction> ApprovalActions { get; set; }
+        public DbSet<Barcode> Barcodes => Set<Barcode>();
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
         {

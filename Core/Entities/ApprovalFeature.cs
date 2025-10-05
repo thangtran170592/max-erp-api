@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Core.Enums;
 
 namespace Core.Entities
@@ -13,7 +9,7 @@ namespace Core.Entities
         public ApprovalConfig ApprovalConfig { get; set; } = null!;
         public bool Status { get; set; } = true;
         public ApprovalTargetType TargetType { get; set; }
-        public string TargetValue { get; set; } = string.Empty;
+        public Guid TargetValue { get; set; }
         public ICollection<ApprovalStep> ApprovalStep { get; set; } = [];
 
     }

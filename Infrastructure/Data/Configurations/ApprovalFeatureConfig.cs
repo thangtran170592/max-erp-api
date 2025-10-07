@@ -15,7 +15,11 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(255);
 
-            builder.Property(x => x.TargetValue)
+            builder.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            builder.Property(x => x.TargetId)
                 .HasMaxLength(255);
 
             builder.Property(x => x.Status)
@@ -27,7 +31,7 @@ namespace Infrastructure.Data.Configurations
             builder.HasIndex(x => new { x.ApprovalConfigId, x.Id })
                 .IsUnique();
 
-            builder.HasMany(x => x.ApprovalStep)
+            builder.HasMany(x => x.ApprovalSteps)
                 .WithOne(x => x.ApprovalFeature)
                 .HasForeignKey(x => x.ApprovalFeatureId)
                 .OnDelete(DeleteBehavior.Cascade);

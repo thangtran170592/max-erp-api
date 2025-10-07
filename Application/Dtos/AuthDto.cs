@@ -9,6 +9,8 @@ namespace Application.Dtos
         public required string Username { get; init; }
         public required string Password { get; init; }
         public required AccountStatus AccountStatus { get; init; }
+        public required Guid DepartmentId { get; init; }
+        public required Guid PositionId { get; init; }
         public required string[] Roles { get; init; }
     }
     public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
@@ -23,7 +25,13 @@ namespace Application.Dtos
 
             RuleFor(x => x.AccountStatus)
             .NotEmpty().WithName("accountStatus").WithMessage("AccountStatus is required");
-            
+
+            RuleFor(x => x.DepartmentId)
+            .NotEmpty().WithName("departmentId").WithMessage("DepartmentId is required");
+
+            RuleFor(x => x.PositionId)
+            .NotEmpty().WithName("positionId").WithMessage("PositionId is required");
+
             RuleForEach(x => x.Roles)
             .Must(role => Role.AllRoles.Contains(role))
             .WithName("roles")

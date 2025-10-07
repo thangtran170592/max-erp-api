@@ -126,6 +126,14 @@ builder.Services.AddScoped<IUnitOfMeasureService, UnitOfMeasureService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IBarcodeService, BarcodeService>();
+builder.Services.AddScoped<IApprovalService, ApprovalService>();
+builder.Services.AddScoped<IApprovalConfigService, ApprovalConfigService>();
+builder.Services.AddScoped<IApprovalFeatureService, ApprovalFeatureService>();
+builder.Services.AddScoped<IApprovalStepService, ApprovalStepService>();
+builder.Services.AddScoped<IApprovalHistoryService, ApprovalHistoryService>();
+builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IPositionService, PositionService>();
 
 // 🔹 Fluent Validation
 builder.Services.AddFluentValidationAutoValidation();
@@ -137,6 +145,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<RefreshTokenRequestDtoValid
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new AuthProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ChatProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new CatalogProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalConfigProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalFeatureProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalStepProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalHistoryProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalRequestProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new DepartmentProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new PositionProfile()));
 
 // 🔹 CORS
 builder.Services.AddCors(options =>
@@ -179,6 +194,8 @@ using (var scope = app.Services.CreateScope())
 {
     var rolePermissionService = scope.ServiceProvider.GetRequiredService<IRolePermissionService>();
     await rolePermissionService.InitializeRolesAndPermissionsAsync();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await Infrastructure.Data.DataSeeder.SeedAsync(db);
 }
 app.UseCors("AllowAngularLocal");
 

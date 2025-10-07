@@ -1,4 +1,3 @@
-using Application.Common.Helpers;
 using Application.Dtos;
 using Application.IRepositories;
 using Application.IServices;
@@ -19,11 +18,28 @@ namespace Infrastructure.Services
             _mapper = mapper;
         }
 
-        public async Task<ApiResponseDto<List<UserResponseDto>>> FindManyWithPagingAsync(FilterRequestDto request)
+        public async Task<IEnumerable<UserResponseDto>> GetAll()
+        {
+            var result = await _userRepository.FindAllAsync();
+            return _mapper.Map<IEnumerable<UserResponseDto>>(result);
+        }
+
+        public async Task<ApiResponseDto<IEnumerable<UserResponseDto>>> FindManyWithPagingAsync(FilterRequestDto request)
         {
             var result = await _userRepository.FindManyWithPagingAsync(request);
-            var response = ApiResponseHelper.CreateSuccessResponse<ApplicationUser, UserResponseDto>(result, _mapper);
-            return response;
+            return new ApiResponseDto<IEnumerable<UserResponseDto>>
+            {
+                Data = _mapper.Map<IEnumerable<UserResponseDto>>(result.Data),
+                PageData = result.PageData,
+                Message = result.Message,
+                Success = result.Success,
+                Timestamp = result.Timestamp,
+            };
+        }
+
+        public async Task<bool> IsExistAsync(Func<ApplicationUser, bool> predicate)
+        {
+            return await _userRepository.FindOneAsync(x => predicate(x)) != null;
         }
     }
 }

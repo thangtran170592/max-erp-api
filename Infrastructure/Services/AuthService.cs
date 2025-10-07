@@ -133,7 +133,9 @@ namespace Infrastructure.Services
                 var user = new ApplicationUser
                 {
                     UserName = request.Username,
-                    AccountStatus = request.AccountStatus
+                    AccountStatus = request.AccountStatus,
+                    DepartmentId = request.DepartmentId,
+                    PositionId = request.PositionId,
                 };
 
                 var result = await _userManager.CreateAsync(user, request.Password);

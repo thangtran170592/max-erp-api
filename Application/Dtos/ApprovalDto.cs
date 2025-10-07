@@ -31,7 +31,8 @@ namespace Application.Dtos
         public Guid TargetValue { get; init; }
     }
 
-    public record ApprovalInstanceRequestDto : BaseDto
+    // Renamed to avoid conflict with detailed ApprovalInstanceRequestDto used for instance management
+    public record ApproveInstanceRequestDto : BaseDto
     {
         public Guid UserId { get; init; }
         public ApprovalStatus Status { get; init; }

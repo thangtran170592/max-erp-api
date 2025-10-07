@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Updatedb : Migration
+    public partial class Baseline : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,14 +27,312 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ApprovalConfigs",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApprovalConfigs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Barcodes",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BarcodeType = table.Column<int>(type: "int", nullable: false),
+                    Size = table.Column<int>(type: "int", nullable: false),
+                    BarcodeForType = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Data = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
+                    Metadata = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Barcodes", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Conversations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    LastMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastMessageAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Departments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Departments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Packages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Packages", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Positions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Positions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductCategories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Suppliers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Tax = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Suppliers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UnitOfMeasures",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UnitOfMeasures", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Warehouses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Warehouses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApplicationRole_Claims",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApplicationRole_Claims", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationRole_Claims_ApplicationRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "ApplicationRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApprovalFeatures",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ApprovalConfigId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    TargetType = table.Column<int>(type: "int", nullable: false),
+                    TargetId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 255, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApprovalFeatures", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApprovalFeatures_ApprovalConfigs_ApprovalConfigId",
+                        column: x => x.ApprovalConfigId,
+                        principalTable: "ApprovalConfigs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ApplicationUsers",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderNumber = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EmployeeCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DepartmentCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PositionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -68,126 +367,65 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ApplicationUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUsers_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ApplicationUsers_Positions_PositionId",
+                        column: x => x.PositionId,
+                        principalTable: "Positions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Conversations",
+                name: "PackageUnits",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    LastMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastMessageAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                    table.PrimaryKey("PK_PackageUnits", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PackageUnits_Packages_PackageId",
+                        column: x => x.PackageId,
+                        principalTable: "Packages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PackageUnits_UnitOfMeasures_UnitId",
+                        column: x => x.UnitId,
+                        principalTable: "UnitOfMeasures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Packages",
+                name: "WarehouseHistories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Packages", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductCategories",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductCategories", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Suppliers",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Tax = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Suppliers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UnitOfMeasures",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UnitOfMeasures", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Warehouses",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    ReasonRejection = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false),
                     ApprovalStatus = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -196,30 +434,79 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Warehouses", x => x.Id);
+                    table.PrimaryKey("PK_WarehouseHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WarehouseHistories_Warehouses_WarehouseId",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApplicationRole_Claims",
+                name: "ApprovalRequests",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApprovalFeatureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CurrentStepOrder = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ReasonRejection = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ApplicationRole_Claims", x => x.Id);
+                    table.PrimaryKey("PK_ApprovalRequests", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ApplicationRole_Claims_ApplicationRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "ApplicationRoles",
+                        name: "FK_ApprovalRequests_ApprovalFeatures_ApprovalFeatureId",
+                        column: x => x.ApprovalFeatureId,
+                        principalTable: "ApprovalFeatures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApprovalSteps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApprovalFeatureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StepOrder = table.Column<int>(type: "int", nullable: false),
+                    TargetType = table.Column<int>(type: "int", nullable: false),
+                    TargetValue = table.Column<Guid>(type: "uniqueidentifier", maxLength: 100, nullable: false),
+                    IsFinalStep = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApprovalSteps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApprovalSteps_ApprovalFeatures_ApprovalFeatureId",
+                        column: x => x.ApprovalFeatureId,
+                        principalTable: "ApprovalFeatures",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -327,6 +614,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -346,37 +635,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Refresh_Tokens",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Expires = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Revoked = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ReplacedByToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Refresh_Tokens", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Refresh_Tokens_ApplicationUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "ApplicationUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ConversationMembers",
                 columns: table => new
                 {
@@ -391,6 +649,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -427,6 +687,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -452,49 +714,53 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PackageUnits",
+                name: "Refresh_Tokens",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Expires = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedByIp = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Revoked = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RevokedByIp = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReplacedByToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PackageUnits", x => x.Id);
+                    table.PrimaryKey("PK_Refresh_Tokens", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PackageUnits_Packages_PackageId",
-                        column: x => x.PackageId,
-                        principalTable: "Packages",
+                        name: "FK_Refresh_Tokens_ApplicationUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "ApplicationUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PackageUnits_UnitOfMeasures_UnitId",
-                        column: x => x.UnitId,
-                        principalTable: "UnitOfMeasures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "WarehouseHistories",
+                name: "Products",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Uid = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    ReasonRejection = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PackageUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Length = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Width = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Height = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
                     ApprovalStatus = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -502,15 +768,55 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WarehouseHistories", x => x.Id);
+                    table.PrimaryKey("PK_Products", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_WarehouseHistories_Warehouses_WarehouseId",
-                        column: x => x.WarehouseId,
-                        principalTable: "Warehouses",
+                        name: "FK_Products_PackageUnits_PackageUnitId",
+                        column: x => x.PackageUnitId,
+                        principalTable: "PackageUnits",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Products_ProductCategories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "ProductCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApprovalHistories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApprovalRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StepOrder = table.Column<int>(type: "int", nullable: false),
+                    ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApprovalHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApprovalHistories_ApprovalRequests_ApprovalRequestId",
+                        column: x => x.ApprovalRequestId,
+                        principalTable: "ApprovalRequests",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -530,6 +836,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -564,6 +872,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -581,47 +891,6 @@ namespace Infrastructure.Migrations
                         principalTable: "Messages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Products",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Uid = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PackageUnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Length = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Width = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Height = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    ApprovalStatus = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Products_PackageUnits_PackageUnitId",
-                        column: x => x.PackageUnitId,
-                        principalTable: "PackageUnits",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Products_ProductCategories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "ProductCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -648,6 +917,8 @@ namespace Infrastructure.Migrations
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -706,11 +977,57 @@ namespace Infrastructure.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUsers_DepartmentId",
+                table: "ApplicationUsers",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUsers_PositionId",
+                table: "ApplicationUsers",
+                column: "PositionId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "ApplicationUsers",
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalConfigs_Uid",
+                table: "ApprovalConfigs",
+                column: "Uid",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalFeatures_ApprovalConfigId_Id",
+                table: "ApprovalFeatures",
+                columns: new[] { "ApprovalConfigId", "Id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalHistories_ApprovalRequestId_StepOrder",
+                table: "ApprovalHistories",
+                columns: new[] { "ApprovalRequestId", "StepOrder" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalRequests_ApprovalFeatureId_DataId",
+                table: "ApprovalRequests",
+                columns: new[] { "ApprovalFeatureId", "DataId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalSteps_ApprovalFeatureId_StepOrder",
+                table: "ApprovalSteps",
+                columns: new[] { "ApprovalFeatureId", "StepOrder" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Barcodes_BarcodeForType_UserId",
+                table: "Barcodes",
+                columns: new[] { "BarcodeForType", "UserId" },
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BroadcastRecipients_BroadcastId",
@@ -741,6 +1058,12 @@ namespace Infrastructure.Migrations
                 name: "IX_ConversationMembers_UserId",
                 table: "ConversationMembers",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Departments_Uid",
+                table: "Departments",
+                column: "Uid",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MessageReceipts_MessageId",
@@ -776,6 +1099,12 @@ namespace Infrastructure.Migrations
                 name: "IX_PackageUnits_UnitId",
                 table: "PackageUnits",
                 column: "UnitId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Positions_Uid",
+                table: "Positions",
+                column: "Uid",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductHistories_CategoryId",
@@ -832,6 +1161,15 @@ namespace Infrastructure.Migrations
                 name: "ApplicationUser_Tokens");
 
             migrationBuilder.DropTable(
+                name: "ApprovalHistories");
+
+            migrationBuilder.DropTable(
+                name: "ApprovalSteps");
+
+            migrationBuilder.DropTable(
+                name: "Barcodes");
+
+            migrationBuilder.DropTable(
                 name: "BroadcastRecipients");
 
             migrationBuilder.DropTable(
@@ -856,6 +1194,9 @@ namespace Infrastructure.Migrations
                 name: "ApplicationRoles");
 
             migrationBuilder.DropTable(
+                name: "ApprovalRequests");
+
+            migrationBuilder.DropTable(
                 name: "Broadcasts");
 
             migrationBuilder.DropTable(
@@ -868,6 +1209,9 @@ namespace Infrastructure.Migrations
                 name: "Warehouses");
 
             migrationBuilder.DropTable(
+                name: "ApprovalFeatures");
+
+            migrationBuilder.DropTable(
                 name: "ApplicationUsers");
 
             migrationBuilder.DropTable(
@@ -878,6 +1222,15 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductCategories");
+
+            migrationBuilder.DropTable(
+                name: "ApprovalConfigs");
+
+            migrationBuilder.DropTable(
+                name: "Departments");
+
+            migrationBuilder.DropTable(
+                name: "Positions");
 
             migrationBuilder.DropTable(
                 name: "Packages");

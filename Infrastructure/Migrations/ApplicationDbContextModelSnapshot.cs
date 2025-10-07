@@ -189,59 +189,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("ApplicationUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Entities.ApprovalAction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApprovalInstanceId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("ApproverId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ConcurrencyStamp")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StepOrder")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovalInstanceId", "StepOrder");
-
-                    b.ToTable("ApprovalActions", (string)null);
-                });
-
             modelBuilder.Entity("Core.Entities.ApprovalConfig", b =>
                 {
                     b.Property<Guid>("Id")
@@ -277,6 +224,12 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -321,17 +274,28 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<bool>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<Guid>("TargetValue")
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetId")
                         .HasMaxLength(255)
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -352,7 +316,66 @@ namespace Infrastructure.Migrations
                     b.ToTable("ApprovalFeatures", (string)null);
                 });
 
-            modelBuilder.Entity("Core.Entities.ApprovalInstance", b =>
+            modelBuilder.Entity("Core.Entities.ApprovalHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApprovalRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ApproverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ConcurrencyStamp")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StepOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovalRequestId", "StepOrder");
+
+                    b.ToTable("ApprovalHistories", (string)null);
+                });
+
+            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -389,6 +412,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -400,7 +429,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ApprovalFeatureId", "DataId")
                         .IsUnique();
 
-                    b.ToTable("ApprovalInstances", (string)null);
+                    b.ToTable("ApprovalRequests", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.ApprovalStep", b =>
@@ -432,6 +461,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("StepOrder")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TargetType")
                         .HasColumnType("int");
@@ -498,6 +533,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -556,6 +597,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -603,6 +650,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -653,6 +706,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -697,6 +756,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -750,6 +815,12 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -807,6 +878,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -857,6 +934,12 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -904,6 +987,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Uid")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -948,6 +1037,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UnitId")
                         .HasColumnType("uniqueidentifier");
@@ -1000,6 +1095,12 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -1067,6 +1168,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -1121,6 +1228,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -1194,6 +1307,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -1257,6 +1376,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("RevokedByIp")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Token")
                         .IsRequired()
@@ -1322,6 +1447,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Tax")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1370,6 +1501,12 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Uid")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1416,6 +1553,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -1467,6 +1610,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Uid")
                         .IsRequired()
@@ -1608,17 +1757,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Position");
                 });
 
-            modelBuilder.Entity("Core.Entities.ApprovalAction", b =>
-                {
-                    b.HasOne("Core.Entities.ApprovalInstance", "ApprovalInstance")
-                        .WithMany("Actions")
-                        .HasForeignKey("ApprovalInstanceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApprovalInstance");
-                });
-
             modelBuilder.Entity("Core.Entities.ApprovalFeature", b =>
                 {
                     b.HasOne("Core.Entities.ApprovalConfig", "ApprovalConfig")
@@ -1630,7 +1768,18 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApprovalConfig");
                 });
 
-            modelBuilder.Entity("Core.Entities.ApprovalInstance", b =>
+            modelBuilder.Entity("Core.Entities.ApprovalHistory", b =>
+                {
+                    b.HasOne("Core.Entities.ApprovalRequest", "ApprovalRequest")
+                        .WithMany("ApprovalHistories")
+                        .HasForeignKey("ApprovalRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApprovalRequest");
+                });
+
+            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
                 {
                     b.HasOne("Core.Entities.ApprovalFeature", "ApprovalFeature")
                         .WithMany()
@@ -1644,7 +1793,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Core.Entities.ApprovalStep", b =>
                 {
                     b.HasOne("Core.Entities.ApprovalFeature", "ApprovalFeature")
-                        .WithMany("ApprovalStep")
+                        .WithMany("ApprovalSteps")
                         .HasForeignKey("ApprovalFeatureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1907,12 +2056,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.ApprovalFeature", b =>
                 {
-                    b.Navigation("ApprovalStep");
+                    b.Navigation("ApprovalSteps");
                 });
 
-            modelBuilder.Entity("Core.Entities.ApprovalInstance", b =>
+            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
                 {
-                    b.Navigation("Actions");
+                    b.Navigation("ApprovalHistories");
                 });
 
             modelBuilder.Entity("Core.Entities.Broadcast", b =>

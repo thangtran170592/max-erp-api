@@ -14,15 +14,15 @@ namespace Infrastructure.Services
         {
             _dbContext = dbContext;
         }
-        public async Task<bool> ApproveAsync(ApprovalInstanceRequestDto dto)
+    public async Task<bool> ApproveAsync(ApproveInstanceRequestDto dto)
         {
-            var instance = await _dbContext.ApprovalInstances
-                 .Include(x => x.ApprovalFeature).ThenInclude(f => f.ApprovalStep)
-                 .Include(x => x.Actions)
+            var instance = await _dbContext.ApprovalRequests
+                 .Include(x => x.ApprovalFeature).ThenInclude(f => f.ApprovalSteps)
+                 .Include(x => x.ApprovalHistories)
                  .FirstOrDefaultAsync(x => x.Id == dto.Id);
             if (instance == null) throw new Exception("Approval instance not found");
 
-            var currentStep = instance.ApprovalFeature.ApprovalStep.FirstOrDefault(x => x.StepOrder == instance.CurrentStepOrder);
+            var currentStep = instance.ApprovalFeature.ApprovalSteps.FirstOrDefault(x => x.StepOrder == instance.CurrentStepOrder);
             if (currentStep == null) throw new Exception("Step not found");
 
             var user = await _dbContext.Users.FindAsync(dto.UserId);
@@ -33,7 +33,7 @@ namespace Infrastructure.Services
 
             if (dto.Status == ApprovalStatus.Approved)
             {
-                var nextStep = instance.ApprovalFeature.ApprovalStep.FirstOrDefault(x => x.StepOrder == instance.CurrentStepOrder + 1);
+                var nextStep = instance.ApprovalFeature.ApprovalSteps.FirstOrDefault(x => x.StepOrder == instance.CurrentStepOrder + 1);
                 if (nextStep != null)
                 {
                     instance.CurrentStepOrder = nextStep.StepOrder;
@@ -54,16 +54,16 @@ namespace Infrastructure.Services
                 throw new Exception("Invalid status");
             }
 
-            var action = new ApprovalAction
+            var action = new ApprovalHistory
             {
-                ApprovalInstanceId = instance.Id,
+                ApprovalRequestId = instance.Id,
                 StepOrder = currentStep.StepOrder,
                 ApproverId = dto.UserId,
                 ApprovedAt = DateTime.UtcNow,
                 Status = dto.Status,
                 Reason = dto.Reason
             };
-            _dbContext.ApprovalActions.Add(action);
+            _dbContext.ApprovalHistories.Add(action);
             await _dbContext.SaveChangesAsync();
             return true;
         }
@@ -72,15 +72,15 @@ namespace Infrastructure.Services
         {
             if (step.TargetType == ApprovalTargetType.User)
             {
-                return user.Id == step.TargetValue;
+                return user.Id == step.TargetId;
             }
             else if (step.TargetType == ApprovalTargetType.Position)
             {
-                return user.PositionId == step.TargetValue;
+                return user.PositionId == step.TargetId;
             }
             else if (step.TargetType == ApprovalTargetType.Department)
             {
-                return user.DepartmentId == step.TargetValue;
+                return user.DepartmentId == step.TargetId;
             }
             return false;
         }

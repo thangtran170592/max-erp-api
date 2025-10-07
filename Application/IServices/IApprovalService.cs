@@ -4,6 +4,6 @@ namespace Application.IServices
 {
     public interface IApprovalService
     {
-        Task<bool> ApproveAsync(ApprovalInstanceRequestDto dto);
+    Task<bool> ApproveAsync(ApproveInstanceRequestDto dto);
     }
 }

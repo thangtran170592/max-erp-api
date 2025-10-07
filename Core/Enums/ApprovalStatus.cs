@@ -2,19 +2,21 @@ namespace Core.Enums
 {
     public enum ApprovalStatus
     {
-        Pending = 1,
-        Approved = 2,
-        Rejected = 3
+        Draft = 1,
+        Pending = 2,
+        Approved = 3,
+        Rejected = 4
     }
 
     public static class ApprovalStatusExtensions
     {
         public static string GetTitle(this ApprovalStatus status) => status switch
         {
+            ApprovalStatus.Draft => "Draft",
             ApprovalStatus.Approved => "Approved",
             ApprovalStatus.Pending => "Pending",
             ApprovalStatus.Rejected => "Rejected",
-            _ => "Unknown"
+            _ => throw new NotImplementedException()
         };
-    }
+    }   
 }

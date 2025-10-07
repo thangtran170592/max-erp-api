@@ -20,7 +20,7 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.TargetType)
                 .HasConversion<int>();
 
-            builder.Property(x => x.TargetValue)
+            builder.Property(x => x.TargetId)
                 .HasMaxLength(100);
         }
     }

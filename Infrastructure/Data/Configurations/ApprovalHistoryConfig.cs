@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations
 {
-    public class ApprovalActionConfig : IEntityTypeConfiguration<ApprovalAction>
+    public class ApprovalHistoryConfig : IEntityTypeConfiguration<ApprovalHistory>
     {
-        public void Configure(EntityTypeBuilder<ApprovalAction> builder)
+        public void Configure(EntityTypeBuilder<ApprovalHistory> builder)
         {
-            builder.ToTable("ApprovalActions");
+            builder.ToTable("ApprovalHistories");
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Status)
@@ -20,7 +20,7 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.Reason)
                 .HasMaxLength(1000);
 
-            builder.HasIndex(x => new { x.ApprovalInstanceId, x.StepOrder });
+            builder.HasIndex(x => new { x.ApprovalRequestId, x.StepOrder });
         }
     }
 }

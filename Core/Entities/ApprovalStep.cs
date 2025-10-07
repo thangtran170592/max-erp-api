@@ -8,7 +8,7 @@ namespace Core.Entities
         public ApprovalFeature ApprovalFeature { get; set; } = null!;
         public int StepOrder { get; set; }
         public ApprovalTargetType TargetType { get; set; }
-        public Guid TargetValue { get; set; }
+        public Guid TargetId { get; set; }
         public bool IsFinalStep { get; set; } = false;
     }
 }

@@ -4,16 +4,16 @@ using Core.Entities;
 
 namespace Application.Mappings;
 
-public class ApprovalRequestProfile : Profile
+public class ApprovalDocumentProfile : Profile
 {
-    public ApprovalRequestProfile()
+    public ApprovalDocumentProfile()
     {
-        CreateMap<ApprovalRequestDto, ApprovalRequest>()
+        CreateMap<ApprovalDocumentDto, ApprovalDocument>()
             .ForMember(d => d.Id, o => o.Ignore())
             .ForMember(d => d.CreatedAt, o => o.Ignore())
             .ForMember(d => d.UpdatedAt, o => o.Ignore())
             .ForMember(d => d.ApprovalHistories, o => o.Ignore());
 
-        CreateMap<ApprovalRequest, ApprovalResponseDto>();
+        CreateMap<ApprovalDocument, ApprovalResponseDto>();
     }
 }

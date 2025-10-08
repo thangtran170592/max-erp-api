@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configurations
 {
-    public class ApprovalRequestConfig : IEntityTypeConfiguration<ApprovalRequest>
+    public class ApprovalDocumentConfig : IEntityTypeConfiguration<ApprovalDocument>
     {
-        public void Configure(EntityTypeBuilder<ApprovalRequest> builder)
+        public void Configure(EntityTypeBuilder<ApprovalDocument> builder)
         {
-            builder.ToTable("ApprovalRequests");
+            builder.ToTable("ApprovalDocuments");
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.Status)
@@ -24,8 +24,8 @@ namespace Infrastructure.Data.Configurations
                 .HasMaxLength(1000);
 
             builder.HasMany(x => x.ApprovalHistories)
-                .WithOne(x => x.ApprovalRequest)
-                .HasForeignKey(x => x.ApprovalRequestId)
+                .WithOne(x => x.ApprovalDocument)
+                .HasForeignKey(x => x.ApprovalDocumentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -20,7 +20,7 @@ namespace Infrastructure.Data.Configurations
             builder.Property(x => x.Reason)
                 .HasMaxLength(1000);
 
-            builder.HasIndex(x => new { x.ApprovalRequestId, x.StepOrder });
+            builder.HasIndex(x => new { x.ApprovalDocumentId, x.StepOrder });
         }
     }
 }

@@ -1,4 +1,5 @@
 using Core.Entities;
+using Microsoft.AspNetCore.Identity;
 using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,8 +7,13 @@ namespace Infrastructure.Data;
 
 public static class DataSeeder
 {
-    public static async Task SeedAsync(ApplicationDbContext db)
+    public static async Task SeedAsync(ApplicationDbContext db, UserManager<ApplicationUser>? userManager = null, RoleManager<ApplicationRole>? roleManager = null)
     {
+        // Seed SuperAdmin user first (if managers provided)
+        if (userManager != null && roleManager != null)
+        {
+            await SeedSuperAdminAsync(userManager, roleManager);
+        }
         // Departments
         if (!await db.Departments.AnyAsync())
         {
@@ -104,5 +110,43 @@ public static class DataSeeder
         }
 
         await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+    {
+        const string superAdminUserName = "superadmin";
+        const string superAdminEmail = "superadmin@local.test";
+        const string defaultPassword = "Code@123"; // Consider moving to configuration / secret store
+        const string preferredRole = "Admin"; // Adjust if your highest role differs (e.g., SuperAdmin)
+
+        var existing = await userManager.FindByNameAsync(superAdminUserName);
+        if (existing != null) return; // already seeded
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = superAdminUserName,
+            NormalizedUserName = superAdminUserName.ToUpperInvariant(),
+            Email = superAdminEmail,
+            NormalizedEmail = superAdminEmail.ToUpperInvariant(),
+            EmailConfirmed = true,
+            Uid = "SUPERADMIN",
+            FullName = "System Super Admin",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            JoinDate = DateTime.UtcNow
+        };
+
+        var createResult = await userManager.CreateAsync(user, defaultPassword);
+        if (!createResult.Succeeded)
+        {
+            // You might want to log errors; for now just return
+            return;
+        }
+
+        if (await roleManager.RoleExistsAsync(preferredRole))
+        {
+            await userManager.AddToRoleAsync(user, preferredRole);
+        }
     }
 }

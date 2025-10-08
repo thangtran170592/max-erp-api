@@ -3,7 +3,7 @@ using Core.Enums;
 
 namespace Application.Dtos;
 
-public record class ApprovalRequestDto
+public record class ApprovalDocumentDto
 {
     [Required]
     public Guid ApprovalFeatureId { get; set; }

@@ -11,13 +11,13 @@ using System.Linq.Expressions;
 
 namespace Infrastructure.Services;
 
-public class ApprovalRequestService : IApprovalRequestService
+public class ApprovalDocumentService : IApprovalDocumentService
 {
-    private readonly IGenericRepository<ApprovalRequest> _repository;
+    private readonly IGenericRepository<ApprovalDocument> _repository;
     private readonly ApplicationDbContext _dbContext;
     private readonly IMapper _mapper;
 
-    public ApprovalRequestService(IGenericRepository<ApprovalRequest> repository, IMapper mapper, ApplicationDbContext dbContext)
+    public ApprovalDocumentService(IGenericRepository<ApprovalDocument> repository, IMapper mapper, ApplicationDbContext dbContext)
     {
         _repository = repository;
         _mapper = mapper;
@@ -26,7 +26,7 @@ public class ApprovalRequestService : IApprovalRequestService
 
     public async Task<IEnumerable<ApprovalResponseDto>> GetAllAsync(Guid? approvalFeatureId = null)
     {
-        IQueryable<ApprovalRequest> query = _dbContext.ApprovalRequests.AsNoTracking();
+        IQueryable<ApprovalDocument> query = _dbContext.ApprovalDocuments.AsNoTracking();
         if (approvalFeatureId.HasValue) query = query.Where(x => x.ApprovalFeatureId == approvalFeatureId.Value);
         var list = await query.OrderByDescending(x => x.CreatedAt).ToListAsync();
         return _mapper.Map<IEnumerable<ApprovalResponseDto>>(list);
@@ -34,7 +34,7 @@ public class ApprovalRequestService : IApprovalRequestService
 
     public async Task<ApiResponseDto<List<ApprovalResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request, Guid? approvalFeatureId = null, Guid? dataId = null)
     {
-        IQueryable<ApprovalRequest> query = _dbContext.ApprovalRequests.AsNoTracking();
+        IQueryable<ApprovalDocument> query = _dbContext.ApprovalDocuments.AsNoTracking();
         if (approvalFeatureId.HasValue) query = query.Where(x => x.ApprovalFeatureId == approvalFeatureId.Value);
         if (dataId.HasValue) query = query.Where(x => x.DataId == dataId.Value);
         int total = await query.CountAsync();
@@ -65,13 +65,13 @@ public class ApprovalRequestService : IApprovalRequestService
         return entity == null ? null : _mapper.Map<ApprovalResponseDto>(entity);
     }
 
-    public async Task<ApprovalResponseDto> CreateAsync(ApprovalRequestDto request)
+    public async Task<ApprovalResponseDto> CreateAsync(ApprovalDocumentDto request)
     {
         // Uniqueness: one instance per feature + data id (if that's a rule; implementing here)
-        var exist = await _dbContext.ApprovalRequests.AnyAsync(x => x.ApprovalFeatureId == request.ApprovalFeatureId && x.DataId == request.DataId && x.Status != ApprovalStatus.Rejected);
+        var exist = await _dbContext.ApprovalDocuments.AnyAsync(x => x.ApprovalFeatureId == request.ApprovalFeatureId && x.DataId == request.DataId && x.Status != ApprovalStatus.Rejected);
         if (exist) throw new Exception("An active approval instance already exists for this feature and data item");
 
-        var entity = _mapper.Map<ApprovalRequest>(request);
+        var entity = _mapper.Map<ApprovalDocument>(request);
         entity.Id = Guid.NewGuid();
         entity.CreatedAt = DateTime.UtcNow;
         entity.CreatedBy = request.CreatedBy;
@@ -82,7 +82,7 @@ public class ApprovalRequestService : IApprovalRequestService
         return _mapper.Map<ApprovalResponseDto>(entity);
     }
 
-    public async Task<ApprovalResponseDto?> UpdateAsync(Guid id, ApprovalRequestDto request)
+    public async Task<ApprovalResponseDto?> UpdateAsync(Guid id, ApprovalDocumentDto request)
     {
         var entity = await _repository.FindOneAsync(x => x.Id == id);
         if (entity == null) return null;
@@ -146,6 +146,6 @@ public class ApprovalRequestService : IApprovalRequestService
         return 1;
     }
 
-    public async Task<bool> IsExistAsync(Expression<Func<ApprovalRequest, bool>> predicate)
+    public async Task<bool> IsExistAsync(Expression<Func<ApprovalDocument, bool>> predicate)
         => await _repository.FindOneAsync(predicate) != null;
 }

@@ -4,8 +4,8 @@ namespace Core.Entities
 {
     public class ApprovalHistory : BaseEntity
     {
-        public Guid ApprovalRequestId { get; set; }
-        public ApprovalRequest ApprovalRequest { get; set; } = null!;
+        public Guid ApprovalDocumentId { get; set; }
+        public ApprovalDocument ApprovalDocument { get; set; } = null!;
         public int StepOrder { get; set; }
         public Guid? ApproverId { get; set; }
         public DateTime? ApprovedAt { get; set; }

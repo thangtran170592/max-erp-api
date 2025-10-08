@@ -71,7 +71,7 @@ public class ApprovalHistoryController : BaseController
     {
         try
         {
-            var result = await _service.IsExistAsync(a => a.ApprovalRequestId == approvalInstanceId && a.StepOrder == stepOrder);
+            var result = await _service.IsExistAsync(a => a.ApprovalDocumentId == approvalInstanceId && a.StepOrder == stepOrder);
             return Ok(ApiResponseHelper.CreateSuccessResponse(result));
         }
         catch (Exception ex)

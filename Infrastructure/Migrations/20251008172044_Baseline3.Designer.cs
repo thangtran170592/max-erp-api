@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251007132554_Baseline")]
-    partial class Baseline
+    [Migration("20251008172044_Baseline3")]
+    partial class Baseline3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -198,6 +198,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("ApprovalGroup")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("ConcurrencyStamp")
                         .HasColumnType("uniqueidentifier");
 
@@ -253,6 +256,71 @@ namespace Infrastructure.Migrations
                     b.ToTable("ApprovalConfigs", (string)null);
                 });
 
+            modelBuilder.Entity("Core.Entities.ApprovalDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApprovalFeatureId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ConcurrencyStamp")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CurrentStepOrder")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("DataId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Editable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReasonRejection")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubmittedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubmitterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubmitterId");
+
+                    b.HasIndex("ApprovalFeatureId", "DataId")
+                        .IsUnique();
+
+                    b.ToTable("ApprovalDocuments", (string)null);
+                });
+
             modelBuilder.Entity("Core.Entities.ApprovalFeature", b =>
                 {
                     b.Property<Guid>("Id")
@@ -293,13 +361,6 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("SubmittedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TargetId")
-                        .HasMaxLength(255)
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Uid")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -325,7 +386,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ApprovalRequestId")
+                    b.Property<Guid>("ApprovalDocumentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ApprovedAt")
@@ -373,66 +434,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApprovalRequestId", "StepOrder");
+                    b.HasIndex("ApprovalDocumentId", "StepOrder");
 
                     b.ToTable("ApprovalHistories", (string)null);
-                });
-
-            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApprovalFeatureId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ConcurrencyStamp")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CurrentStepOrder")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("DataId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ReasonRejection")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("SubmittedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovalFeatureId", "DataId")
-                        .IsUnique();
-
-                    b.ToTable("ApprovalRequests", (string)null);
                 });
 
             modelBuilder.Entity("Core.Entities.ApprovalStep", b =>
@@ -471,12 +475,12 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("SubmittedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("TargetValue")
+                    b.Property<Guid>("TargetId")
                         .HasMaxLength(100)
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1760,6 +1764,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("Position");
                 });
 
+            modelBuilder.Entity("Core.Entities.ApprovalDocument", b =>
+                {
+                    b.HasOne("Core.Entities.ApprovalFeature", "ApprovalFeature")
+                        .WithMany()
+                        .HasForeignKey("ApprovalFeatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Core.Entities.ApplicationUser", "Submitter")
+                        .WithMany()
+                        .HasForeignKey("SubmitterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApprovalFeature");
+
+                    b.Navigation("Submitter");
+                });
+
             modelBuilder.Entity("Core.Entities.ApprovalFeature", b =>
                 {
                     b.HasOne("Core.Entities.ApprovalConfig", "ApprovalConfig")
@@ -1773,24 +1796,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.ApprovalHistory", b =>
                 {
-                    b.HasOne("Core.Entities.ApprovalRequest", "ApprovalRequest")
+                    b.HasOne("Core.Entities.ApprovalDocument", "ApprovalDocument")
                         .WithMany("ApprovalHistories")
-                        .HasForeignKey("ApprovalRequestId")
+                        .HasForeignKey("ApprovalDocumentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ApprovalRequest");
-                });
-
-            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
-                {
-                    b.HasOne("Core.Entities.ApprovalFeature", "ApprovalFeature")
-                        .WithMany()
-                        .HasForeignKey("ApprovalFeatureId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApprovalFeature");
+                    b.Navigation("ApprovalDocument");
                 });
 
             modelBuilder.Entity("Core.Entities.ApprovalStep", b =>
@@ -2057,14 +2069,14 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApprovalFeatures");
                 });
 
+            modelBuilder.Entity("Core.Entities.ApprovalDocument", b =>
+                {
+                    b.Navigation("ApprovalHistories");
+                });
+
             modelBuilder.Entity("Core.Entities.ApprovalFeature", b =>
                 {
                     b.Navigation("ApprovalSteps");
-                });
-
-            modelBuilder.Entity("Core.Entities.ApprovalRequest", b =>
-                {
-                    b.Navigation("ApprovalHistories");
                 });
 
             modelBuilder.Entity("Core.Entities.Broadcast", b =>

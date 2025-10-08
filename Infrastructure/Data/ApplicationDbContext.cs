@@ -31,7 +31,7 @@ namespace Infrastructure.Data
         public DbSet<ApprovalConfig> ApprovalConfigs { get; set; }
         public DbSet<ApprovalFeature> ApprovalFeatures { get; set; }
         public DbSet<ApprovalStep> ApprovalSteps { get; set; }
-        public DbSet<ApprovalRequest> ApprovalRequests { get; set; }
+        public DbSet<ApprovalDocument> ApprovalDocuments { get; set; }
         public DbSet<ApprovalHistory> ApprovalHistories { get; set; }
         public DbSet<Barcode> Barcodes => Set<Barcode>();
 

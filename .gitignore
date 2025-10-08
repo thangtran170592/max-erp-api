@@ -9,6 +9,14 @@ x64/
 x86/
 ARM/
 ARM64/
+Api/bin/
+Api/obj/
+Apllication/bin/
+Application/obj/
+Core/bin/
+Core/obj/
+Infrastructure/bin/
+Infrastructure/obj/
 
 # VS Code
 .vscode/

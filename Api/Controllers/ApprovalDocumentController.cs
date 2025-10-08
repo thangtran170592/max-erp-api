@@ -9,12 +9,12 @@ namespace Api.Controllers;
 [ApiController]
 [Route("api/approval-requests")]
 [Authorize]
-public class ApprovalRequestController : BaseController
+public class ApprovalDocumentController : BaseController
 {
-    private readonly IApprovalRequestService _service;
-    private readonly ILogger<ApprovalRequestController> _logger;
+    private readonly IApprovalDocumentService _service;
+    private readonly ILogger<ApprovalDocumentController> _logger;
 
-    public ApprovalRequestController(IApprovalRequestService service, ILogger<ApprovalRequestController> logger)
+    public ApprovalDocumentController(IApprovalDocumentService service, ILogger<ApprovalDocumentController> logger)
     {
         _service = service;
         _logger = logger;
@@ -82,7 +82,7 @@ public class ApprovalRequestController : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Create([FromBody] ApprovalRequestDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Create([FromBody] ApprovalDocumentDto dto)
     {
         try
         {
@@ -98,7 +98,7 @@ public class ApprovalRequestController : BaseController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Update(Guid id, [FromBody] ApprovalRequestDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Update(Guid id, [FromBody] ApprovalDocumentDto dto)
     {
         try
         {

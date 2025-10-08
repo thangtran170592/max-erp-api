@@ -68,28 +68,7 @@ namespace Infrastructure.Services
 
         public async Task<ApprovalStepResponseDto> CreateAsync(ApprovalStepRequestDto request)
         {
-            // Determine next StepOrder if not provided or <=0
-            var stepsQuery = _dbContext.ApprovalSteps.Where(x => x.ApprovalFeatureId == request.ApprovalFeatureId);
-            int nextOrder = await stepsQuery.AnyAsync() ? await stepsQuery.MaxAsync(x => x.StepOrder) + 1 : 1;
-            var stepOrder = request.StepOrder.HasValue && request.StepOrder.Value > 0 ? request.StepOrder.Value : nextOrder;
-
-            // If explicit order inserted in middle shift subsequent
-            if (stepOrder != nextOrder)
-            {
-                await _dbContext.Database.BeginTransactionAsync();
-                await _dbContext.ApprovalSteps
-                    .Where(x => x.ApprovalFeatureId == request.ApprovalFeatureId && x.StepOrder >= stepOrder)
-                    .ForEachAsync(x => x.StepOrder += 1);
-                await _dbContext.SaveChangesAsync();
-            }
-
-            // Enforce single final step
-            if (request.IsFinalStep)
-            {
-                bool existingFinal = await stepsQuery.AnyAsync(x => x.IsFinalStep);
-                if (existingFinal) throw new Exception("A final step already exists for this feature");
-            }
-
+            var stepOrder = request.StepOrder;
             var entity = _mapper.Map<ApprovalStep>(request);
             entity.Id = Guid.NewGuid();
             entity.StepOrder = stepOrder;
@@ -107,7 +86,7 @@ namespace Infrastructure.Services
 
             // Changing StepOrder handled separately (use UpdateOrder endpoint for clarity)
             entity.TargetType = request.TargetType;
-            entity.TargetId = request.TargetValue;
+            entity.TargetId = request.TargetId;
 
             if (request.IsFinalStep != entity.IsFinalStep)
             {

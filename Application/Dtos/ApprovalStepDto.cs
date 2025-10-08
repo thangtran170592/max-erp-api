@@ -4,19 +4,13 @@ using Core.Enums;
 
 namespace Application.Dtos
 {
-    public record ApprovalStepRequestDto
+    public record ApprovalStepRequestDto : BaseDto
     {
         [Required]
-        public Guid ApprovalFeatureId { get; set; }
-        // Optional: if omitted (0 or null) we auto-calculate next order
-        public int? StepOrder { get; set; }
-        [Required]
+        public int StepOrder { get; set; }
         public ApprovalTargetType TargetType { get; set; }
-        [Required]
-        public Guid TargetValue { get; set; }
+        public Guid TargetId { get; set; }
         public bool IsFinalStep { get; set; } = false;
-        public Guid? CreatedBy { get; set; }
-        public Guid? UpdatedBy { get; set; }
     }
 
     public record ApprovalStepResponseDto : BaseDto
@@ -24,7 +18,7 @@ namespace Application.Dtos
         public Guid ApprovalFeatureId { get; set; }
         public int StepOrder { get; set; }
         public ApprovalTargetType TargetType { get; set; }
-        public Guid TargetValue { get; set; }
+        public Guid TargetId { get; set; }
         public bool IsFinalStep { get; set; }
     }
 

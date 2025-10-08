@@ -300,8 +300,6 @@ namespace Infrastructure.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ApprovalConfigId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    TargetType = table.Column<int>(type: "int", nullable: false),
-                    TargetId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 255, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -450,37 +448,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ApprovalRequests",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApprovalFeatureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    DataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CurrentStepOrder = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ReasonRejection = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ApprovalRequests", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ApprovalRequests_ApprovalFeatures_ApprovalFeatureId",
-                        column: x => x.ApprovalFeatureId,
-                        principalTable: "ApprovalFeatures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ApprovalSteps",
                 columns: table => new
                 {
@@ -488,7 +455,7 @@ namespace Infrastructure.Migrations
                     ApprovalFeatureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StepOrder = table.Column<int>(type: "int", nullable: false),
                     TargetType = table.Column<int>(type: "int", nullable: false),
-                    TargetValue = table.Column<Guid>(type: "uniqueidentifier", maxLength: 100, nullable: false),
+                    TargetId = table.Column<Guid>(type: "uniqueidentifier", maxLength: 100, nullable: false),
                     IsFinalStep = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -592,6 +559,45 @@ namespace Infrastructure.Migrations
                         name: "FK_ApplicationUser_Tokens_ApplicationUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "ApplicationUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ApprovalDocuments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApprovalFeatureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    DataId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CurrentStepOrder = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ReasonRejection = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Editable = table.Column<bool>(type: "bit", nullable: false),
+                    SubmitterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubmittedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SubmittedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ConcurrencyStamp = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ApprovalDocuments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ApprovalDocuments_ApplicationUsers_SubmitterId",
+                        column: x => x.SubmitterId,
+                        principalTable: "ApplicationUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ApprovalDocuments_ApprovalFeatures_ApprovalFeatureId",
+                        column: x => x.ApprovalFeatureId,
+                        principalTable: "ApprovalFeatures",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -794,7 +800,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApprovalRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApprovalDocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StepOrder = table.Column<int>(type: "int", nullable: false),
                     ApproverId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ApprovedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -814,9 +820,9 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_ApprovalHistories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ApprovalHistories_ApprovalRequests_ApprovalRequestId",
-                        column: x => x.ApprovalRequestId,
-                        principalTable: "ApprovalRequests",
+                        name: "FK_ApprovalHistories_ApprovalDocuments_ApprovalDocumentId",
+                        column: x => x.ApprovalDocumentId,
+                        principalTable: "ApprovalDocuments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1000,21 +1006,26 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApprovalDocuments_ApprovalFeatureId_DataId",
+                table: "ApprovalDocuments",
+                columns: new[] { "ApprovalFeatureId", "DataId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ApprovalDocuments_SubmitterId",
+                table: "ApprovalDocuments",
+                column: "SubmitterId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ApprovalFeatures_ApprovalConfigId_Id",
                 table: "ApprovalFeatures",
                 columns: new[] { "ApprovalConfigId", "Id" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ApprovalHistories_ApprovalRequestId_StepOrder",
+                name: "IX_ApprovalHistories_ApprovalDocumentId_StepOrder",
                 table: "ApprovalHistories",
-                columns: new[] { "ApprovalRequestId", "StepOrder" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApprovalRequests_ApprovalFeatureId_DataId",
-                table: "ApprovalRequests",
-                columns: new[] { "ApprovalFeatureId", "DataId" },
-                unique: true);
+                columns: new[] { "ApprovalDocumentId", "StepOrder" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ApprovalSteps_ApprovalFeatureId_StepOrder",
@@ -1194,7 +1205,7 @@ namespace Infrastructure.Migrations
                 name: "ApplicationRoles");
 
             migrationBuilder.DropTable(
-                name: "ApprovalRequests");
+                name: "ApprovalDocuments");
 
             migrationBuilder.DropTable(
                 name: "Broadcasts");

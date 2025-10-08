@@ -131,7 +131,7 @@ builder.Services.AddScoped<IApprovalConfigService, ApprovalConfigService>();
 builder.Services.AddScoped<IApprovalFeatureService, ApprovalFeatureService>();
 builder.Services.AddScoped<IApprovalStepService, ApprovalStepService>();
 builder.Services.AddScoped<IApprovalHistoryService, ApprovalHistoryService>();
-builder.Services.AddScoped<IApprovalRequestService, ApprovalRequestService>();
+builder.Services.AddScoped<IApprovalDocumentService, ApprovalDocumentService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 
@@ -149,7 +149,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalConfigProfile()
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalFeatureProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalStepProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalHistoryProfile()));
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalRequestProfile()));
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new ApprovalDocumentProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new DepartmentProfile()));
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile(new PositionProfile()));
 
@@ -195,7 +195,9 @@ using (var scope = app.Services.CreateScope())
     var rolePermissionService = scope.ServiceProvider.GetRequiredService<IRolePermissionService>();
     await rolePermissionService.InitializeRolesAndPermissionsAsync();
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await Infrastructure.Data.DataSeeder.SeedAsync(db);
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    await Infrastructure.Data.DataSeeder.SeedAsync(db, userManager, roleManager);
 }
 app.UseCors("AllowAngularLocal");
 

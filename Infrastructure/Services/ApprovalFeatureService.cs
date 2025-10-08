@@ -40,7 +40,7 @@ namespace Infrastructure.Services
 
         public async Task<ApiResponseDto<List<ApprovalFeatureResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request, Guid? approvalConfigId = null)
         {
-            Expression<Func<ApprovalFeature, object>>[] includes = [static x => x.ApprovalConfig];
+            Expression<Func<ApprovalFeature, object>>[] includes = [static x => x.ApprovalConfig, x => x.ApprovalSteps];
             var result = await _repository.FindManyWithPagingAsync(request, includes);
             return new ApiResponseDto<List<ApprovalFeatureResponseDto>>
             {
@@ -58,15 +58,8 @@ namespace Infrastructure.Services
             return entity == null ? null : _mapper.Map<ApprovalFeatureResponseDto>(entity);
         }
 
-        public async Task<ApprovalFeatureResponseDto?> GetByUidAsync(Guid approvalConfigId, string uid)
-        {
-            var entity = await _repository.FindOneAsync(x => x.ApprovalConfigId == approvalConfigId && x.Uid == uid);
-            return entity == null ? null : _mapper.Map<ApprovalFeatureResponseDto>(entity);
-        }
-
         public async Task<ApprovalFeatureResponseDto> CreateAsync(ApprovalFeatureRequestDto request)
         {
-            // uniqueness: same ApprovalConfig cannot have duplicate Uid
             var existed = await _repository.FindOneAsync(x => x.ApprovalConfigId == request.ApprovalConfigId && x.Uid == request.Uid);
             if (existed != null) throw new Exception($"ApprovalFeature with Uid {request.Uid} already exists in this config");
 
@@ -75,6 +68,23 @@ namespace Infrastructure.Services
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = request.CreatedBy;
             await _repository.AddOneAsync(entity);
+            if (request.ApprovalSteps != null && request.ApprovalSteps.Any())
+            {
+                int stepsCount = request.ApprovalSteps.Count;
+                var steps = request.ApprovalSteps.Select((step, index) => new ApprovalStep
+                {
+                    Id = Guid.NewGuid(),
+                    ApprovalFeatureId = entity.Id,
+                    StepOrder = step.StepOrder,
+                    TargetId = step.TargetId,
+                    TargetType = step.TargetType,
+                    IsFinalStep = index == stepsCount - 1,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = request.CreatedBy
+                }).ToList();
+                await _dbContext.ApprovalSteps.AddRangeAsync(steps);
+            }
+
             await _repository.SaveChangesAsync();
             return _mapper.Map<ApprovalFeatureResponseDto>(entity);
         }
@@ -83,32 +93,33 @@ namespace Infrastructure.Services
         {
             var entity = await _repository.FindOneAsync(x => x.Id == id);
             if (entity == null) return null;
-
-            if (!string.Equals(entity.Uid, request.Uid, StringComparison.OrdinalIgnoreCase) || entity.ApprovalConfigId != request.ApprovalConfigId)
+            entity.Name = request.Name;
+            entity.ApprovalConfigId = request.ApprovalConfigId;
+            entity.Status = request.Status;
+            entity.UpdatedAt = DateTime.UtcNow;
+            entity.UpdatedBy = request.UpdatedBy;
+            _repository.UpdateOne(entity);
+            if (request.ApprovalSteps != null && request.ApprovalSteps.Any())
             {
-                var existed = await _repository.FindOneAsync(x => x.ApprovalConfigId == request.ApprovalConfigId && x.Uid == request.Uid);
-                if (existed != null) throw new Exception($"ApprovalFeature with Uid {request.Uid} already exists in this config");
-                entity.Uid = request.Uid;
-                entity.ApprovalConfigId = request.ApprovalConfigId;
-            }
-            entity.TargetType = request.TargetType;
-            entity.TargetId = request.TargetId;
-            entity.Status = request.Status;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.UpdatedBy = request.UpdatedBy;
-            _repository.UpdateOne(entity);
-            await _repository.SaveChangesAsync();
-            return _mapper.Map<ApprovalFeatureResponseDto>(entity);
-        }
+                var existingSteps = _dbContext.ApprovalSteps.Where(s => s.ApprovalFeatureId == entity.Id);
+                _dbContext.ApprovalSteps.RemoveRange(existingSteps);
 
-        public async Task<ApprovalFeatureResponseDto?> UpdateStatusAsync(Guid id, UpdateApprovalFeatureStatusRequestDto request)
-        {
-            var entity = await _repository.FindOneAsync(x => x.Id == id);
-            if (entity == null) return null;
-            entity.Status = request.Status;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.UpdatedBy = request.UpdatedBy;
-            _repository.UpdateOne(entity);
+                int stepsCount = request.ApprovalSteps.Count;
+                var steps = request.ApprovalSteps.Select((step, index) => new ApprovalStep
+                {
+                    Id = Guid.NewGuid(),
+                    ApprovalFeatureId = entity.Id,
+                    StepOrder = step.StepOrder,
+                    TargetId = step.TargetId,
+                    TargetType = step.TargetType,
+                    IsFinalStep = index == stepsCount - 1,
+                    CreatedAt = entity.CreatedAt,
+                    CreatedBy = entity.CreatedBy,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = request.UpdatedBy,
+                }).ToList();
+                await _dbContext.ApprovalSteps.AddRangeAsync(steps);
+            }
             await _repository.SaveChangesAsync();
             return _mapper.Map<ApprovalFeatureResponseDto>(entity);
         }

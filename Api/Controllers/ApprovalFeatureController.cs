@@ -66,12 +66,12 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("exists/{approvalConfigId:guid}/{uid}")]
-        public async Task<ActionResult<ApiResponseDto<bool>>> Exists(Guid approvalConfigId, string uid)
+        [HttpGet("exists/{uid}")]
+        public async Task<ActionResult<ApiResponseDto<bool>>> Exists(string uid)
         {
             try
             {
-                var result = await _service.IsExistAsync(entry => entry.ApprovalConfigId == approvalConfigId && entry.Uid == uid);
+                var result = await _service.IsExistAsync(entry => entry.Uid == uid);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(result));
             }
             catch (Exception ex)
@@ -110,23 +110,6 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating approval feature");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-
-        [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDto<ApprovalFeatureResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalFeatureStatusRequestDto dto)
-        {
-            try
-            {
-                dto.UpdatedBy = GetCurrentUserId();
-                var updated = await _service.UpdateStatusAsync(id, dto);
-                if (updated == null) return NotFound();
-                return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating approval feature status");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }

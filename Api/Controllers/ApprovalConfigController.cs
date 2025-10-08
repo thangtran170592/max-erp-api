@@ -11,12 +11,12 @@ namespace Api.Controllers
     [Authorize]
     public class ApprovalConfigController : BaseController
     {
-        private readonly IApprovalConfigService _service;
+        private readonly IApprovalConfigService _serviceApprovalConfig;
         private readonly ILogger<ApprovalConfigController> _logger;
 
-        public ApprovalConfigController(IApprovalConfigService service, ILogger<ApprovalConfigController> logger)
+        public ApprovalConfigController(IApprovalConfigService serviceApprovalConfig, ILogger<ApprovalConfigController> logger)
         {
-            _service = service;
+            _serviceApprovalConfig = serviceApprovalConfig;
             _logger = logger;
         }
 
@@ -25,7 +25,7 @@ namespace Api.Controllers
         {
             try
             {
-                var data = await _service.GetAllAsync();
+                var data = await _serviceApprovalConfig.GetAllAsync();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(data));
             }
             catch (Exception ex)
@@ -35,12 +35,28 @@ namespace Api.Controllers
             }
         }
 
+
+       [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<ApprovalConfigResponseDto>>> GetActive()
+        {
+            try
+            {
+                var data = await _serviceApprovalConfig.GetManyAsync(p => p.Status);
+                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting active approval configs");
+                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
+            }
+        }
+
         [HttpPost("search")]
         public async Task<ActionResult<ApiResponseDto<List<ApprovalConfigResponseDto>>>> Search([FromBody] FilterRequestDto dto)
         {
             try
             {
-                var result = await _service.GetManyWithPagingAsync(dto);
+                var result = await _serviceApprovalConfig.GetManyWithPagingAsync(dto);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -55,7 +71,7 @@ namespace Api.Controllers
         {
             try
             {
-                var item = await _service.GetByIdAsync(id);
+                var item = await _serviceApprovalConfig.GetByIdAsync(id);
                 if (item == null) return NotFound();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(item));
             }
@@ -71,7 +87,7 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _service.IsExistAsync(entry => entry.Uid == uid);
+                var result = await _serviceApprovalConfig.IsExistAsync(entry => entry.Uid == uid);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(result));
             }
             catch (Exception ex)
@@ -87,7 +103,7 @@ namespace Api.Controllers
             try
             {
                 dto.CreatedBy = GetCurrentUserId();
-                var created = await _service.CreateAsync(dto);
+                var created = await _serviceApprovalConfig.CreateAsync(dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(created));
             }
             catch (Exception ex)
@@ -103,7 +119,7 @@ namespace Api.Controllers
             try
             {
                 dto.UpdatedBy = GetCurrentUserId();
-                var updated = await _service.UpdateAsync(id, dto);
+                var updated = await _serviceApprovalConfig.UpdateAsync(id, dto);
                 if (updated == null) return NotFound();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
             }
@@ -120,7 +136,7 @@ namespace Api.Controllers
             try
             {
                 dto.UpdatedBy = GetCurrentUserId();
-                var updated = await _service.UpdateStatusAsync(id, dto);
+                var updated = await _serviceApprovalConfig.UpdateStatusAsync(id, dto);
                 if (updated == null) return NotFound();
                 return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
             }
@@ -136,7 +152,7 @@ namespace Api.Controllers
         {
             try
             {
-                var deleted = await _service.DeleteAsync(id, GetCurrentUserId());
+                var deleted = await _serviceApprovalConfig.DeleteAsync(id, GetCurrentUserId());
                 return Ok(ApiResponseHelper.CreateSuccessResponse(deleted));
             }
             catch (Exception ex)

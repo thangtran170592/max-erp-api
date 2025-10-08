@@ -4,22 +4,18 @@ using Application.IRepositories;
 using Application.IServices;
 using AutoMapper;
 using Core.Entities;
-using Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
     public class ApprovalConfigService : IApprovalConfigService
     {
         private readonly IGenericRepository<ApprovalConfig> _repository;
-        private readonly ApplicationDbContext _dbContext;
         private readonly IMapper _mapper;
 
-        public ApprovalConfigService(IGenericRepository<ApprovalConfig> repository, IMapper mapper, ApplicationDbContext dbContext)
+        public ApprovalConfigService(IGenericRepository<ApprovalConfig> repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
-            _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<ApprovalConfigResponseDto>> GetAllAsync()

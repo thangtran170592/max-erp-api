@@ -16,7 +16,7 @@ namespace Infrastructure.Services
         }
     public async Task<bool> ApproveAsync(ApproveInstanceRequestDto dto)
         {
-            var instance = await _dbContext.ApprovalRequests
+            var instance = await _dbContext.ApprovalDocuments
                  .Include(x => x.ApprovalFeature).ThenInclude(f => f.ApprovalSteps)
                  .Include(x => x.ApprovalHistories)
                  .FirstOrDefaultAsync(x => x.Id == dto.Id);
@@ -56,7 +56,7 @@ namespace Infrastructure.Services
 
             var action = new ApprovalHistory
             {
-                ApprovalRequestId = instance.Id,
+                ApprovalDocumentId = instance.Id,
                 StepOrder = currentStep.StepOrder,
                 ApproverId = dto.UserId,
                 ApprovedAt = DateTime.UtcNow,

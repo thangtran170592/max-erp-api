@@ -19,14 +19,8 @@ namespace Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(255);
 
-            builder.Property(x => x.TargetId)
-                .HasMaxLength(255);
-
             builder.Property(x => x.Status)
                 .HasDefaultValue(true);
-
-            builder.Property(x => x.TargetType)
-                .HasConversion<int>();
 
             builder.HasIndex(x => new { x.ApprovalConfigId, x.Id })
                 .IsUnique();

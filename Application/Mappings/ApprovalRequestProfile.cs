@@ -14,6 +14,6 @@ public class ApprovalDocumentProfile : Profile
             .ForMember(d => d.UpdatedAt, o => o.Ignore())
             .ForMember(d => d.ApprovalHistories, o => o.Ignore());
 
-        CreateMap<ApprovalDocument, ApprovalResponseDto>();
+        CreateMap<ApprovalDocument, ApprovalDocumentResponseDto>();
     }
 }

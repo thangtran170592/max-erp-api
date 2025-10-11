@@ -40,7 +40,10 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _warehouseService.GetManyWithPagingAsync(dto);
+                var userId = GetCurrentUserId();
+                var departmentId = GetCurrentDepartmentId();
+                var positionId = GetCurrentPositionId();
+                var result = await _warehouseService.GetManyWithPagingAsync(userId, departmentId, positionId, dto);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -81,21 +84,6 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("{id:guid}/history")]
-        public async Task<ActionResult<ApiResponseDto<IEnumerable<WarehouseHistoryDto>>>> GetWarehouseHistory(Guid id)
-        {
-            try
-            {
-                var result = await _warehouseService.GetWarehouseHistoryAsync(id);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(result));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting warehouse history");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-
         [HttpPost]
         public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> Create([FromBody] WarehouseRequestDto dto)
         {
@@ -103,7 +91,6 @@ namespace Api.Controllers
             {
                 var userId = GetCurrentUserId();
                 dto.CreatedBy = userId;
-                dto.CreatedAt = DateTime.UtcNow;
                 var created = await _warehouseService.CreateAsync(dto);
                 return Ok(ApiResponseHelper.CreateSuccessResponse(created));
             }
@@ -132,7 +119,7 @@ namespace Api.Controllers
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateWarehouseStatusRequestDto dto)
+        public async Task<ActionResult<ApiResponseDto<WarehouseResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalRequestDto dto)
         {
             try
             {

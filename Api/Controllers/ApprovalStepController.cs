@@ -35,21 +35,6 @@ namespace Api.Controllers
             }
         }
 
-        [HttpPost("search")]
-        public async Task<ActionResult<ApiResponseDto<List<ApprovalStepResponseDto>>>> Search([FromBody] FilterRequestDto request, [FromQuery] Guid? approvalFeatureId)
-        {
-            try
-            {
-                var result = await _service.GetManyWithPagingAsync(request, approvalFeatureId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error searching approval steps");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<ApiResponseDto<ApprovalStepResponseDto>>> GetById(Guid id)
         {

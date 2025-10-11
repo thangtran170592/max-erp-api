@@ -6,46 +6,56 @@ using AutoMapper;
 using Core.Entities;
 using Core.Enums;
 using Infrastructure.Data;
+using Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IGenericRepository<Product> _repositoryProduct;
+        private readonly IGenericRepository<Product> _productRepository;
         private readonly ApplicationDbContext _dbContext;
-        private readonly IGenericRepository<ProductHistory> _repositoryProductHistory;
         private readonly IMapper _mapper;
 
-        public ProductService(IGenericRepository<Product> repository, IGenericRepository<ProductHistory> repositoryProductHistory,
+        public ProductService(IGenericRepository<Product> productRepository,
         IMapper mapper, ApplicationDbContext dbContext)
         {
-            _repositoryProduct = repository;
-            _repositoryProductHistory = repositoryProductHistory;
+            _productRepository = productRepository;
             _mapper = mapper;
             _dbContext = dbContext;
         }
 
         public async Task<IEnumerable<ProductResponseDto>> GetAllAsync()
         {
-            var entities = await _repositoryProduct.FindAllAsync();
+            var entities = await _productRepository.FindAllAsync();
             return _mapper.Map<IEnumerable<ProductResponseDto>>(entities);
         }
 
         public async Task<IEnumerable<ProductResponseDto>> GetManyAsync(Expression<Func<Product, bool>> predicate)
         {
-            var entities = await _repositoryProduct.FindManyAsync(predicate);
+            var entities = await _productRepository.FindManyAsync(predicate);
             return _mapper.Map<IEnumerable<ProductResponseDto>>(entities);
         }
 
-        public async Task<ApiResponseDto<List<ProductResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request)
+        public async Task<ApiResponseDto<List<ProductResponseDto>>> GetManyWithPagingAsync(Guid userId, Guid? departmentId, Guid? positionId, FilterRequestDto request)
         {
-            var result = await _repositoryProduct.FindManyWithPagingAsync(request, [
+            var result = await _productRepository.FindManyWithPagingAsync(request, includes: [
                 static x => x.PackageUnit!,
                 static x => x.PackageUnit!.Package!,
                 static x => x.PackageUnit!.Unit!,
                 static x => x.Category!
-            ]);
+            ], predicate: x =>
+                // Product join với ApprovalDocument và có approval history pending cho user hiện tại
+                _dbContext.ApprovalDocuments.Any(doc => 
+                    doc.DocumentId == x.Id && 
+                    doc.ApprovalStatus == ApprovalStatus.Pending &&
+                    doc.ApprovalHistories.Any(history => 
+                        (history.ApproverId == userId || 
+                         history.ApproverId == departmentId || 
+                         history.ApproverId == positionId) && 
+                        history.ApprovalStatus == ApprovalStatus.Pending))
+            );
+
             return new ApiResponseDto<List<ProductResponseDto>>
             {
                 Data = _mapper.Map<List<ProductResponseDto>>(result.Data),
@@ -58,7 +68,7 @@ namespace Infrastructure.Services
 
         public async Task<ProductResponseDto?> GetByIdAsync(Guid id)
         {
-            var entity = await _repositoryProduct.FindOneAsync(x => x.Id == id);
+            var entity = await _productRepository.FindOneAsync(x => x.Id == id);
             return entity == null ? null : _mapper.Map<ProductResponseDto>(entity);
         }
 
@@ -69,23 +79,32 @@ namespace Infrastructure.Services
             entity.ApprovalStatus = ApprovalStatus.Pending;
             entity.CreatedAt = DateTime.UtcNow;
             entity.CreatedBy = request.CreatedBy;
-            await _repositoryProduct.AddOneAsync(entity);
+            await _productRepository.AddOneAsync(entity);
 
-            var productHistory = _mapper.Map<ProductHistory>(entity);
-            productHistory.Id = Guid.NewGuid();
-            productHistory.ProductId = entity.Id;
-            await _repositoryProductHistory.AddOneAsync(productHistory);
+            var feature = await _dbContext.ApprovalFeatures
+                .Include(x => x.ApprovalConfig)
+                .Where(f => f.Status && f.ApprovalConfig != null && f.ApprovalConfig.ApprovalGroup == ApprovalGroup.Product)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
 
-            await _repositoryProduct.SaveChangesAsync();
+            var document = new InitializeApprovalRequestDto
+            {
+                ApprovalGroup = ApprovalGroup.Product,
+                ApprovalFeatureId = feature?.Id ?? Guid.Empty,
+                DocumentId = entity.Id,
+            };
+
+            await ApprovalHandleHelper.InitializeApprovalProcess(_dbContext, document);
+            await _dbContext.SaveChangesAsync();
             await LoadRelatedEntitiesAsync(entity);
             return _mapper.Map<ProductResponseDto>(entity);
         }
 
         public async Task<ProductResponseDto?> UpdateAsync(Guid id, ProductRequestDto request)
         {
-            var entity = await _repositoryProduct.FindOneAsync(x => x.Id == id);
+            var entity = await _productRepository.FindOneAsync(x => x.Id == id);
             if (entity == null) return null;
-        
+
             entity.Uid = request.Uid;
             entity.Name = request.Name;
             entity.Price = request.Price;
@@ -98,108 +117,61 @@ namespace Infrastructure.Services
             entity.UpdatedAt = DateTime.UtcNow;
             entity.UpdatedBy = request.UpdatedBy;
 
-            _repositoryProduct.UpdateOne(entity);
+            _productRepository.UpdateOne(entity);
 
-            var productHistory = _mapper.Map<ProductHistory>(entity);
-            productHistory.Id = Guid.NewGuid();
-            productHistory.Uid = entity.Uid;
-            productHistory.ProductId = entity.Id;
-            productHistory.Status = request.Status;
-            productHistory.UpdatedAt = DateTime.UtcNow;
-            productHistory.UpdatedBy = request.UpdatedBy;
-            await _repositoryProductHistory.AddOneAsync(productHistory);
+            // var approvalHistory = entity
+            //    .OrderByDescending(h => h.CreatedAt)
+            //    .FirstOrDefault();
 
-            await _repositoryProduct.SaveChangesAsync();
+            // if (approvalHistory != null && (approvalHistory.Status == ApprovalStatus.Draft || approvalHistory.Status == ApprovalStatus.Rejected))
+            // {
+            //     approvalHistory.Id = Guid.NewGuid();
+            //     approvalHistory.UpdatedAt = DateTime.UtcNow;
+            //     approvalHistory.UpdatedBy = request.UpdatedBy;
+            //     await _dbContext.ApprovalHistories.AddAsync(approvalHistory);
+            // }
+
+            await _dbContext.SaveChangesAsync();
             await LoadRelatedEntitiesAsync(entity);
             return _mapper.Map<ProductResponseDto>(entity);
         }
 
         public async Task<int> DeleteAsync(Guid id, Guid deletedBy)
         {
-            var entity = await _repositoryProduct.FindOneAsync(x => x.Id == id);
+            var entity = await _productRepository.FindOneAsync(x => x.Id == id);
             if (entity == null) return 0;
-            _repositoryProduct.DeleteOne(entity);
-            var result = await _repositoryProduct.SaveChangesAsync();
+            _productRepository.DeleteOne(entity);
+            var result = await _productRepository.SaveChangesAsync();
             return result;
         }
 
-        public async Task<ProductResponseDto> UpdateStatusAsync(Guid id, UpdateProductStatusRequestDto request)
+        public async Task<ProductResponseDto> UpdateStatusAsync(Guid id, UpdateApprovalRequestDto request)
         {
-            var product = await _repositoryProduct.FindOneAsync(x => x.Id == id);
+            var product = await _productRepository.FindOneAsync(x => x.Id == id);
             if (product == null) throw new Exception("Product not found");
 
             product.ApprovalStatus = request.ApprovalStatus;
             product.UpdatedAt = DateTime.UtcNow;
             product.UpdatedBy = request.UpdatedBy;
 
-            _repositoryProduct.UpdateOne(product);
+            _productRepository.UpdateOne(product);
 
-            var productHistory = _mapper.Map<ProductHistory>(product);
-            productHistory.Id = Guid.NewGuid();
-            productHistory.Uid = product.Uid;
-            productHistory.ProductId = product.Id;
-            productHistory.ReasonRejection = request.ReasonRejection;
-            productHistory.ApprovalStatus = request.ApprovalStatus;
-            productHistory.UpdatedAt = DateTime.UtcNow;
-            productHistory.UpdatedBy = request.UpdatedBy;
+            var document = new ApprovalHandlerRequestDto
+            {
+                ApprovalStatus = request.ApprovalStatus,
+                ApproverId = request.UpdatedBy ?? Guid.Empty,
+                DocumentId = product.Id,
+                Comment = request.Comment
+            };
 
-            await _repositoryProductHistory.AddOneAsync(productHistory);
-
-            await _repositoryProduct.SaveChangesAsync();
+            await ApprovalHandleHelper.ApprovalDocumentHandler(_dbContext, document);
+            await _dbContext.SaveChangesAsync();
             await LoadRelatedEntitiesAsync(product);
             return _mapper.Map<ProductResponseDto>(product);
         }
 
         public async Task<bool> IsExistAsync(Expression<Func<Product, bool>> predicate)
-            => await _repositoryProduct.FindOneAsync(predicate) != null;
-
-        public async Task<IEnumerable<ProductHistoryResponseDto>> GetProductHistoryAsync(Guid productId)
-        {
-            var productHistoriesQuery = from productHistory in _dbContext.ProductHistories
-                                        where productHistory.ProductId == productId
-                                        join creatorUser in _dbContext.Users on productHistory.CreatedBy equals creatorUser.Id into createdGroup
-                                        from createdUser in createdGroup.DefaultIfEmpty()
-                                        join updatedUser in _dbContext.Users on productHistory.UpdatedBy equals updatedUser.Id into updatedGroup
-                                        from updatedUser in updatedGroup.DefaultIfEmpty()
-                                        select new ProductHistoryResponseDto
-                                        {
-                                            ProductId = productHistory.ProductId,
-                                            Uid = productHistory.Uid,
-                                            Name = productHistory.Name,
-                                            CategoryId = productHistory.CategoryId,
-                                            CategoryName = productHistory.Category != null ? productHistory.Category.Name : string.Empty,
-                                            Price = productHistory.Price,
-                                            Length = productHistory.Length,
-                                            Width = productHistory.Width,
-                                            Height = productHistory.Height,
-                                            ReasonRejection = productHistory.ReasonRejection,
-                                            Status = productHistory.Status,
-                                            ApprovalStatus = productHistory.ApprovalStatus,
-                                            CreatedAt = productHistory.CreatedAt,
-                                            CreatedBy = productHistory.CreatedBy,
-                                            UpdatedAt = productHistory.UpdatedAt,
-                                            UpdatedBy = productHistory.UpdatedBy,
-                                            CreatedByUser = createdUser == null ? null : new UserResponseDto
-                                            {
-                                                Id = createdUser.Id,
-                                                FullName = createdUser.FullName,
-                                                UserName = createdUser.UserName,
-                                                Email = createdUser.Email,
-                                                ProfilePicture = createdUser.ProfilePicture,
-                                            },
-                                            UpdatedByUser = updatedUser == null ? null : new UserResponseDto
-                                            {
-                                                Id = updatedUser.Id,
-                                                FullName = updatedUser.FullName,
-                                                UserName = updatedUser.UserName,
-                                                Email = updatedUser.Email,
-                                                ProfilePicture = updatedUser.ProfilePicture,
-                                            }
-                                        };
-            var histories = await productHistoriesQuery.AsNoTracking().ToListAsync();
-            if (histories == null) throw new Exception("Product not found");
-            return histories;
-        }
+            => await _productRepository.FindOneAsync(predicate) != null;
 
         private async Task LoadRelatedEntitiesAsync(Product entity)
         {

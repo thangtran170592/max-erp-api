@@ -5,9 +5,9 @@ namespace Application.IRepositories
 {
     public interface IGenericRepository<TEntity> where TEntity : class
     {
-        Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
-        Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
-        Task<IEnumerable<TEntity>> FindManyAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? include = null, CancellationToken cancellationToken = default);
+        Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request, Expression<Func<TEntity, object>>[]? includes = null, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default);
+        Task<TEntity?> FindOneAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
+        Task<IEnumerable<TEntity>> FindManyAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
         Task<IEnumerable<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>>[]? filters = null, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default);
         Task AddOneAsync(TEntity entity, CancellationToken cancellationToken = default);
         Task AddManyAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);

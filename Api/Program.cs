@@ -64,8 +64,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
    {
        options.UseSqlServer(connectionString, x => x.MigrationsAssembly("Infrastructure"));
-       options.UseLazyLoadingProxies(false);
-   });
+   }, ServiceLifetime.Scoped);
 
 // 🔹 Identity
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
@@ -126,7 +125,7 @@ builder.Services.AddScoped<IUnitOfMeasureService, UnitOfMeasureService>();
 builder.Services.AddScoped<IProductCategoryService, ProductCategoryService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 builder.Services.AddScoped<IBarcodeService, BarcodeService>();
-builder.Services.AddScoped<IApprovalService, ApprovalService>();
+//builder.Services.AddScoped<IApprovalHandleService, ApprovalHandleService>();
 builder.Services.AddScoped<IApprovalConfigService, ApprovalConfigService>();
 builder.Services.AddScoped<IApprovalFeatureService, ApprovalFeatureService>();
 builder.Services.AddScoped<IApprovalStepService, ApprovalStepService>();

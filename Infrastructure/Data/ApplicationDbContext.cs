@@ -17,10 +17,8 @@ namespace Infrastructure.Data
         public DbSet<ConversationMember> ConversationMembers => Set<ConversationMember>();
         public DbSet<MessageReceipt> MessageReceipts => Set<MessageReceipt>();
         public DbSet<Warehouse> Warehouses => Set<Warehouse>();
-        public DbSet<WarehouseHistory> WarehouseHistories => Set<WarehouseHistory>();
         public DbSet<BroadcastRecipient> BroadcastRecipients => Set<BroadcastRecipient>();
         public DbSet<Product> Products => Set<Product>();
-        public DbSet<ProductHistory> ProductHistories => Set<ProductHistory>();
         public DbSet<ProductCategory> ProductCategories => Set<ProductCategory>();
         public DbSet<Package> Packages => Set<Package>();
         public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();
@@ -37,18 +35,6 @@ namespace Infrastructure.Data
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellation = default)
         {
-            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
-            {
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        entry.Entity.CreatedAt = DateTime.UtcNow;
-                        break;
-                    case EntityState.Modified:
-                        entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        break;
-                }
-            }
             return await base.SaveChangesAsync(cancellation);
         }
 

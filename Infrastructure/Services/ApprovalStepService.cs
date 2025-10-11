@@ -32,34 +32,6 @@ namespace Infrastructure.Services
             return _mapper.Map<IEnumerable<ApprovalStepResponseDto>>(list);
         }
 
-        public async Task<ApiResponseDto<List<ApprovalStepResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request, Guid? featureId = null)
-        {
-            // Basic approach: apply featureId filter manually then simple paging (bypassing generic filter complexity for non-string fields)
-            IQueryable<ApprovalStep> query = _dbContext.ApprovalSteps.AsNoTracking();
-            if (featureId.HasValue) query = query.Where(x => x.ApprovalFeatureId == featureId.Value);
-            // TODO: Could extend to dynamic filtering similar to repository if needed.
-            var total = await query.CountAsync();
-            if (request.PagedData.Take <= 0) request.PagedData.Take = 10;
-            if (request.PagedData.Skip < 0) request.PagedData.Skip = 0;
-            var items = await query.OrderBy(x => x.StepOrder)
-                .Skip(request.PagedData.Skip)
-                .Take(request.PagedData.Take)
-                .ToListAsync();
-            return new ApiResponseDto<List<ApprovalStepResponseDto>>
-            {
-                Data = _mapper.Map<List<ApprovalStepResponseDto>>(items),
-                PageData = new PagedData
-                {
-                    Skip = request.PagedData.Skip,
-                    Take = request.PagedData.Take,
-                    TotalCount = total
-                },
-                Success = true,
-                Message = "Data retrieved successfully",
-                Timestamp = DateTime.UtcNow
-            };
-        }
-
         public async Task<ApprovalStepResponseDto?> GetByIdAsync(Guid id)
         {
             var entity = await _repository.FindOneAsync(x => x.Id == id);
@@ -173,9 +145,6 @@ namespace Infrastructure.Services
             await _dbContext.SaveChangesAsync();
             return 1;
         }
-
-        public async Task<bool> IsExistAsync(Expression<Func<ApprovalStep, bool>> predicate)
-            => await _repository.FindOneAsync(predicate) != null;
 
         public async Task RebalanceOrdersAsync(Guid approvalFeatureId)
         {

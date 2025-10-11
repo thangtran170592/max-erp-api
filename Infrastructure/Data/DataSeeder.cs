@@ -12,7 +12,7 @@ public static class DataSeeder
         // Seed SuperAdmin user first (if managers provided)
         if (userManager != null && roleManager != null)
         {
-            await SeedSuperAdminAsync(userManager, roleManager);
+            await SeedSuperAdminAsync(userManager, roleManager, db);
         }
         // Departments
         if (!await db.Departments.AnyAsync())
@@ -45,7 +45,8 @@ public static class DataSeeder
             {
                 new Warehouse { Id = Guid.NewGuid(), Uid = "WHMAIN", Name = "Kho Trung Tâm", Status = true, ApprovalStatus = ApprovalStatus.Approved, CreatedAt = DateTime.UtcNow },
                 new Warehouse { Id = Guid.NewGuid(), Uid = "WHNORTH", Name = "Kho Miền Bắc", Status = true, ApprovalStatus = ApprovalStatus.Approved, CreatedAt = DateTime.UtcNow },
-                new Warehouse { Id = Guid.NewGuid(), Uid = "WHSOUTH", Name = "Kho Miền Nam", Status = true, ApprovalStatus = ApprovalStatus.Approved, CreatedAt = DateTime.UtcNow }
+                new Warehouse { Id = Guid.NewGuid(), Uid = "WHSOUTH", Name = "Kho Miền Nam", Status = true, ApprovalStatus = ApprovalStatus.Approved, CreatedAt = DateTime.UtcNow },
+                new Warehouse { Id = Guid.NewGuid(), Uid = "WHBACKUP", Name = "Kho Dự Phòng", Status = true, ApprovalStatus = ApprovalStatus.Approved, CreatedAt = DateTime.UtcNow }
             };
             await db.Warehouses.AddRangeAsync(warehouses);
         }
@@ -112,7 +113,7 @@ public static class DataSeeder
         await db.SaveChangesAsync();
     }
 
-    private static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+    private static async Task SeedSuperAdminAsync(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, ApplicationDbContext db)
     {
         const string superAdminUserName = "superadmin";
         const string superAdminEmail = "superadmin@local.test";
@@ -121,6 +122,10 @@ public static class DataSeeder
 
         var existing = await userManager.FindByNameAsync(superAdminUserName);
         if (existing != null) return; // already seeded
+
+        // Get seeded department and position for the superadmin
+        var adminDepartment = await db.Departments.FirstOrDefaultAsync(d => d.Uid == "PKHO");
+        var ceoPosition = await db.Positions.FirstOrDefaultAsync(p => p.Uid == "CEO");
 
         var user = new ApplicationUser
         {
@@ -132,6 +137,8 @@ public static class DataSeeder
             EmailConfirmed = true,
             Uid = "SUPERADMIN",
             FullName = "System Super Admin",
+            DepartmentId = adminDepartment?.Id,
+            PositionId = ceoPosition?.Id,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             JoinDate = DateTime.UtcNow

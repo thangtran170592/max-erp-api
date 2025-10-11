@@ -11,13 +11,13 @@ namespace Infrastructure.Data.Configurations
             builder.ToTable("ApprovalHistories");
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Status)
+            builder.Property(x => x.ApprovalStatus)
                 .HasConversion<int>();
 
             builder.Property(x => x.StepOrder)
                 .IsRequired();
 
-            builder.Property(x => x.Reason)
+            builder.Property(x => x.Comment)
                 .HasMaxLength(1000);
 
             builder.HasIndex(x => new { x.ApprovalDocumentId, x.StepOrder });

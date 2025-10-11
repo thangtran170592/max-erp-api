@@ -14,15 +14,10 @@ namespace Application.Dtos
     {
         public string Uid { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
+        public bool Editable { get; init; } = false;
         public bool Status { get; init; }
         public string StatusTitle => Status ? "Active" : "Inactive";
         public ApprovalStatus ApprovalStatus { get; init; }
         public string ApprovalStatusTitle => ApprovalStatus.GetTitle();
-    }
-
-    public record UpdateWarehouseStatusRequestDto : BaseDto
-    {
-        public ApprovalStatus ApprovalStatus { get; init; }
-        public string ReasonRejection { get; init; } = string.Empty;
     }
 }

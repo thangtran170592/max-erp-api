@@ -35,21 +35,6 @@ public class ApprovalHistoryController : BaseController
         }
     }
 
-    [HttpPost("search")]
-    public async Task<ActionResult<ApiResponseDto<List<ApprovalHistoryResponseDto>>>> Search([FromBody] FilterRequestDto dto, [FromQuery] Guid? approvalInstanceId)
-    {
-        try
-        {
-            var result = await _service.GetManyWithPagingAsync(dto, approvalInstanceId);
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error searching approval actions");
-            return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-        }
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ApiResponseDto<ApprovalHistoryResponseDto>>> GetById(Guid id)
     {
@@ -66,21 +51,6 @@ public class ApprovalHistoryController : BaseController
         }
     }
 
-    [HttpGet("exists/{approvalInstanceId:guid}/{stepOrder:int}")]
-    public async Task<ActionResult<ApiResponseDto<bool>>> Exists(Guid approvalInstanceId, int stepOrder)
-    {
-        try
-        {
-            var result = await _service.IsExistAsync(a => a.ApprovalDocumentId == approvalInstanceId && a.StepOrder == stepOrder);
-            return Ok(ApiResponseHelper.CreateSuccessResponse(result));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error checking approval action exists");
-            return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-        }
-    }
-
     [HttpPost]
     public async Task<ActionResult<ApiResponseDto<ApprovalHistoryResponseDto>>> Create([FromBody] ApprovalHistoryRequestDto dto)
     {
@@ -93,57 +63,6 @@ public class ApprovalHistoryController : BaseController
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating approval action");
-            return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-        }
-    }
-
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalHistoryResponseDto>>> Update(Guid id, [FromBody] ApprovalHistoryRequestDto dto)
-    {
-        try
-        {
-            dto.UpdatedBy = GetCurrentUserId();
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating approval action");
-            return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-        }
-    }
-
-    [HttpPatch("{id:guid}/status")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalHistoryResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalActionStatusRequestDto dto)
-    {
-        try
-        {
-            dto.UpdatedBy = GetCurrentUserId();
-            var updated = await _service.UpdateStatusAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating approval action status");
-            return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-        }
-    }
-
-    [HttpPatch("{id:guid}/order")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalHistoryResponseDto>>> UpdateOrder(Guid id, [FromBody] UpdateApprovalActionOrderRequestDto dto)
-    {
-        try
-        {
-            dto.UpdatedBy = GetCurrentUserId();
-            var updated = await _service.UpdateOrderAsync(id, dto);
-            if (updated == null) return NotFound();
-            return Ok(ApiResponseHelper.CreateSuccessResponse(updated));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating approval action order");
             return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
         }
     }

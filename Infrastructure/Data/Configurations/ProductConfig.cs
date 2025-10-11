@@ -37,7 +37,7 @@ namespace Infrastructure.Data.Configurations
 
             builder.Property(x => x.Type)
                 .IsRequired();
-                
+
             builder.Property(x => x.ApprovalStatus)
                 .IsRequired();
 
@@ -50,6 +50,8 @@ namespace Infrastructure.Data.Configurations
                 .WithMany()
                 .HasForeignKey(x => x.PackageUnitId)
                 .OnDelete(DeleteBehavior.Restrict);
+                
+            builder.HasIndex(x => x.Name);
         }
     }
 }

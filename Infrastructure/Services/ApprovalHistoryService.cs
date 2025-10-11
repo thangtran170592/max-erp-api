@@ -32,10 +32,10 @@ public class ApprovalHistoryService : IApprovalHistoryService
         return _mapper.Map<IEnumerable<ApprovalHistoryResponseDto>>(list);
     }
 
-    public async Task<ApiResponseDto<List<ApprovalHistoryResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request, Guid? approvalInstanceId = null)
+    public async Task<ApiResponseDto<List<ApprovalHistoryResponseDto>>> GetManyWithPagingAsync(FilterRequestDto request, Guid userId, Guid? departmentId, Guid? positionId, Guid? approvalDocumentId)
     {
         IQueryable<ApprovalHistory> query = _dbContext.ApprovalHistories.AsNoTracking();
-        if (approvalInstanceId.HasValue) query = query.Where(x => x.ApprovalDocumentId == approvalInstanceId.Value);
+        if (approvalDocumentId.HasValue) query = query.Where(x => x.ApprovalDocumentId == approvalDocumentId.Value);
         int total = await query.CountAsync();
         if (request.PagedData.Take <= 0) request.PagedData.Take = 10;
         if (request.PagedData.Skip < 0) request.PagedData.Skip = 0;
@@ -84,7 +84,7 @@ public class ApprovalHistoryService : IApprovalHistoryService
         entity.StepOrder = stepOrder;
         entity.CreatedAt = DateTime.UtcNow;
         entity.CreatedBy = request.CreatedBy;
-        if (entity.Status == ApprovalStatus.Approved)
+        if (entity.ApprovalStatus == ApprovalStatus.Approved)
         {
             entity.ApprovedAt = DateTime.UtcNow;
         }
@@ -99,12 +99,12 @@ public class ApprovalHistoryService : IApprovalHistoryService
         if (entity == null) return null;
         // StepOrder changes handled in UpdateOrder
         entity.ApproverId = request.ApproverId;
-        if (entity.Status != request.Status)
+        if (entity.ApprovalStatus != request.Status)
         {
-            entity.Status = request.Status;
+            entity.ApprovalStatus = request.Status;
             entity.ApprovedAt = request.Status == ApprovalStatus.Approved ? DateTime.UtcNow : null;
         }
-        entity.Reason = request.Reason;
+        entity.Comment = request.Reason;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.UpdatedBy = request.UpdatedBy;
         _repository.UpdateOne(entity);
@@ -116,12 +116,12 @@ public class ApprovalHistoryService : IApprovalHistoryService
     {
         var entity = await _repository.FindOneAsync(x => x.Id == id);
         if (entity == null) return null;
-        if (entity.Status != request.Status)
+        if (entity.ApprovalStatus != request.Status)
         {
-            entity.Status = request.Status;
+            entity.ApprovalStatus = request.Status;
             entity.ApprovedAt = request.Status == ApprovalStatus.Approved ? DateTime.UtcNow : null;
         }
-        entity.Reason = request.Reason;
+        entity.Comment = request.Reason;
         entity.UpdatedAt = DateTime.UtcNow;
         entity.UpdatedBy = request.UpdatedBy;
         _repository.UpdateOne(entity);

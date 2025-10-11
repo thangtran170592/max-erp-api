@@ -8,6 +8,7 @@ namespace Core.Entities
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public ApprovalGroup ApprovalGroup { get; set; }
+        public Guid LatestApprovalFeatureId { get; set; }
         public bool Status { get; set; } = true;
         public virtual ICollection<ApprovalFeature> ApprovalFeatures { get; set; } = [];
     }

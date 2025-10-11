@@ -57,14 +57,19 @@ namespace Infrastructure.Services
 
         public async Task<ApprovalConfigResponseDto> CreateAsync(ApprovalConfigRequestDto request)
         {
-            // uniqueness
             var existed = await _repository.FindOneAsync(x => x.Uid == request.Uid);
             if (existed != null) throw new Exception($"ApprovalConfig with Uid {request.Uid} already exists");
-
-            var entity = _mapper.Map<ApprovalConfig>(request);
-            entity.Id = Guid.NewGuid();
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.CreatedBy = request.CreatedBy;
+            var entity = new ApprovalConfig
+            {
+                Id = Guid.NewGuid(),
+                Uid = request.Uid!,
+                Name = request.Name,
+                Description = request.Description ?? string.Empty,
+                ApprovalGroup = request.ApprovalGroup,
+                Status = request.Status,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = request.CreatedBy
+            };
             await _repository.AddOneAsync(entity);
             await _repository.SaveChangesAsync();
             return _mapper.Map<ApprovalConfigResponseDto>(entity);
@@ -74,13 +79,6 @@ namespace Infrastructure.Services
         {
             var entity = await _repository.FindOneAsync(x => x.Id == id);
             if (entity == null) return null;
-
-            if (!string.Equals(entity.Uid, request.Uid, StringComparison.OrdinalIgnoreCase))
-            {
-                var existed = await _repository.FindOneAsync(x => x.Uid == request.Uid);
-                if (existed != null) throw new Exception($"ApprovalConfig with Uid {request.Uid} already exists");
-                entity.Uid = request.Uid;
-            }
             entity.Name = request.Name;
             entity.Description = request.Description ?? string.Empty;
             entity.Status = request.Status;

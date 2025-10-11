@@ -34,7 +34,7 @@ namespace Infrastructure.Repositories
             return await query.Where(predicate).FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request, Expression<Func<TEntity, object>>[]? includes = null, CancellationToken cancellationToken = default)
+        public async Task<ApiResponseDto<List<TEntity>>> FindManyWithPagingAsync(FilterRequestDto request, Expression<Func<TEntity, object>>[]? includes = null, Expression<Func<TEntity, bool>>? predicate = null, CancellationToken cancellationToken = default)
         {
             if (request.PagedData.Skip < 0) request.PagedData.Skip = 0;
             if (request.PagedData.Take <= 0) request.PagedData.Take = 10;
@@ -49,6 +49,13 @@ namespace Infrastructure.Repositories
                     query = query.Include(include);
                 }
             }
+
+            // Base predicate
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
             // Dynamic filter
             if (request.Filters != null && request.Filters.Any())
             {
@@ -110,7 +117,7 @@ namespace Infrastructure.Repositories
             var items = await query
                 .Skip(request.PagedData.Skip)
                 .Take(request.PagedData.Take)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return new ApiResponseDto<List<TEntity>>
             {

@@ -55,7 +55,10 @@ namespace Api.Controllers
         {
             try
             {
-                var result = await _serviceProduct.GetManyWithPagingAsync(dto);
+                var userId = GetCurrentUserId();
+                var departmentId = GetCurrentDepartmentId();
+                var positionId = GetCurrentPositionId();
+                var result = await _serviceProduct.GetManyWithPagingAsync(userId, departmentId, positionId, dto);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -133,7 +136,7 @@ namespace Api.Controllers
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ApiResponseDto<ProductResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateProductStatusRequestDto dto)
+        public async Task<ActionResult<ApiResponseDto<ProductResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalRequestDto dto)
         {
             try
             {
@@ -146,20 +149,6 @@ namespace Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating product status");
-                return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
-            }
-        }
-        [HttpGet("{id:guid}/history")]
-        public async Task<ActionResult<ApiResponseDto<IEnumerable<ProductHistoryResponseDto>>>> GetHistory(Guid id)
-        {
-            try
-            {
-                var data = await _serviceProduct.GetProductHistoryAsync(id);
-                return Ok(ApiResponseHelper.CreateSuccessResponse(data));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting product history");
                 return BadRequest(ApiResponseHelper.CreateFailureResponse<string>(ex));
             }
         }

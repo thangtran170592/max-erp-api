@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251008174538_Base")]
-    partial class Base
+    [Migration("20251010131754_AddDocument3")]
+    partial class AddDocument3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -289,10 +289,6 @@ namespace Infrastructure.Migrations
                     b.Property<bool>("Editable")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ReasonRejection")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -302,7 +298,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("SubmittedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("SubmitterId")
+                    b.Property<Guid?>("SubmitterId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -395,6 +391,10 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("ApproverId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<Guid?>("ConcurrencyStamp")
                         .HasColumnType("uniqueidentifier");
 
@@ -409,10 +409,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1134,6 +1130,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ApprovalDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("int");
 
@@ -1200,9 +1199,17 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ApprovalDocumentId");
+
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("Name");
+
                     b.HasIndex("PackageUnitId");
+
+                    b.HasIndex("Id", "ApprovalDocumentId")
+                        .IsUnique()
+                        .HasFilter("[ApprovalDocumentId] IS NOT NULL");
 
                     b.ToTable("Products", (string)null);
                 });
@@ -1535,6 +1542,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ApprovalDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("ApprovalStatus")
                         .HasColumnType("int");
 
@@ -1578,6 +1588,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovalDocumentId");
 
                     b.ToTable("Warehouses", (string)null);
                 });
@@ -1774,9 +1786,7 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Core.Entities.ApplicationUser", "Submitter")
                         .WithMany()
-                        .HasForeignKey("SubmitterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SubmitterId");
 
                     b.Navigation("ApprovalFeature");
 
@@ -1932,6 +1942,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Core.Entities.Product", b =>
                 {
+                    b.HasOne("Core.Entities.ApprovalDocument", "ApprovalDocument")
+                        .WithMany()
+                        .HasForeignKey("ApprovalDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Core.Entities.ProductCategory", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
@@ -1943,6 +1958,8 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("PackageUnitId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("ApprovalDocument");
 
                     b.Navigation("Category");
 
@@ -1985,6 +2002,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Core.Entities.Warehouse", b =>
+                {
+                    b.HasOne("Core.Entities.ApprovalDocument", "ApprovalDocument")
+                        .WithMany()
+                        .HasForeignKey("ApprovalDocumentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovalDocument");
                 });
 
             modelBuilder.Entity("Core.Entities.WarehouseHistory", b =>

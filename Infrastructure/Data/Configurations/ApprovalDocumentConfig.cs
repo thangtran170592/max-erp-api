@@ -11,17 +11,14 @@ namespace Infrastructure.Data.Configurations
             builder.ToTable("ApprovalDocuments");
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Status)
+            builder.Property(x => x.ApprovalStatus)
                 .HasConversion<int>();
 
             builder.Property(x => x.CurrentStepOrder)
                 .IsRequired();
 
-            builder.HasIndex(x => new { x.ApprovalFeatureId, x.DataId })
+            builder.HasIndex(x => new { x.ApprovalFeatureId, x.DocumentId })
                 .IsUnique();
-
-            builder.Property(x => x.ReasonRejection)
-                .HasMaxLength(1000);
 
             builder.HasMany(x => x.ApprovalHistories)
                 .WithOne(x => x.ApprovalDocument)

@@ -37,11 +37,4 @@ namespace Application.Dtos
         public decimal Height { get; init; }
         public ProductCategoryType Type { get; init; }
     }
-
-
-    public record UpdateProductStatusRequestDto : BaseDto
-    {
-        public ApprovalStatus ApprovalStatus { get; init; }
-        public string ReasonRejection { get; init; } = string.Empty;
-    }
 }

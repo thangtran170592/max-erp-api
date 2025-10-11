@@ -17,7 +17,7 @@ public record class ApprovalDocumentDto
     public Guid? UpdatedBy { get; set; }
 }
 
-public record class ApprovalResponseDto : BaseDto
+public record class ApprovalDocumentResponseDto : BaseDto
 {
     public Guid ApprovalFeatureId { get; set; }
     public Guid DataId { get; set; }
@@ -26,7 +26,7 @@ public record class ApprovalResponseDto : BaseDto
     public string? ReasonRejection { get; set; }
 }
 
-public record class UpdateApprovalInstanceStatusRequestDto
+public record class UpdateApprovalDocumentStatusRequestDto
 {
     [Required]
     public ApprovalStatus Status { get; set; }
@@ -35,7 +35,7 @@ public record class UpdateApprovalInstanceStatusRequestDto
     public Guid? UpdatedBy { get; set; }
 }
 
-public record class UpdateApprovalInstanceCurrentStepRequestDto
+public record class UpdateApprovalDocumentCurrentStepRequestDto
 {
     [Required]
     public int CurrentStepOrder { get; set; }

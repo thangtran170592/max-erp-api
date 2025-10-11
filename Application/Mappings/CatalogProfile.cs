@@ -8,22 +8,8 @@ namespace Application.Mappings
     {
         public CatalogProfile()
         {
-            CreateMap<Warehouse, WarehouseResponseDto>().ReverseMap();
-
-            CreateMap<WarehouseHistory, WarehouseHistoryDto>()
-                .ForMember(dest => dest.CreatedByUser, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedByUser, opt => opt.Ignore());
-
-            CreateMap<Warehouse, WarehouseHistoryDto>()
-                .ForMember(dest => dest.WarehouseId, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedByUser, opt => opt.Ignore())
-                .ForMember(dest => dest.UpdatedByUser, opt => opt.Ignore());
-
-            CreateMap<Warehouse, WarehouseHistory>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.WarehouseId, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Warehouse, opt => opt.Ignore())
-                .ForMember(dest => dest.ConcurrencyStamp, opt => opt.Ignore());
+            CreateMap<Warehouse, WarehouseResponseDto>()
+            .ReverseMap();
 
             CreateMap<WarehouseRequestDto, Warehouse>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore());
@@ -53,7 +39,6 @@ namespace Application.Mappings
                 .ForMember(d => d.PackageUnit, o => o.Ignore())
                 .ForMember(d => d.Category, o => o.Ignore());
             CreateMap<ProductRequestDto, Product>();
-            CreateMap<Product, ProductHistory>();
             CreateMap<ProductCategory, ProductCategoryResponseDto>().ReverseMap();
             CreateMap<ProductCategoryRequestDto, ProductCategory>();
             CreateMap<Supplier, SupplierResponseDto>().ReverseMap();

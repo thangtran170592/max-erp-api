@@ -21,7 +21,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpGet]
-    public async Task<ActionResult<ApiResponseDto<IEnumerable<ApprovalResponseDto>>>> GetAll([FromQuery] Guid? approvalFeatureId)
+    public async Task<ActionResult<ApiResponseDto<IEnumerable<ApprovalDocumentResponseDto>>>> GetAll([FromQuery] Guid? approvalFeatureId)
     {
         try
         {
@@ -36,7 +36,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpPost("search")]
-    public async Task<ActionResult<ApiResponseDto<List<ApprovalResponseDto>>>> Search([FromBody] FilterRequestDto dto, [FromQuery] Guid? approvalFeatureId, [FromQuery] Guid? dataId)
+    public async Task<ActionResult<ApiResponseDto<List<ApprovalDocumentResponseDto>>>> Search([FromBody] FilterRequestDto dto, [FromQuery] Guid? approvalFeatureId, [FromQuery] Guid? dataId)
     {
         try
         {
@@ -51,7 +51,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> GetById(Guid id)
+    public async Task<ActionResult<ApiResponseDto<ApprovalDocumentResponseDto>>> GetById(Guid id)
     {
         try
         {
@@ -71,7 +71,7 @@ public class ApprovalDocumentController : BaseController
     {
         try
         {
-            var result = await _service.IsExistAsync(a => a.ApprovalFeatureId == approvalFeatureId && a.DataId == dataId && a.Status != Core.Enums.ApprovalStatus.Rejected);
+            var result = await _service.IsExistAsync(a => a.ApprovalFeatureId == approvalFeatureId && a.DocumentId == dataId && a.ApprovalStatus != Core.Enums.ApprovalStatus.Rejected);
             return Ok(ApiResponseHelper.CreateSuccessResponse(result));
         }
         catch (Exception ex)
@@ -82,7 +82,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpPost]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Create([FromBody] ApprovalDocumentDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalDocumentResponseDto>>> Create([FromBody] ApprovalDocumentDto dto)
     {
         try
         {
@@ -98,7 +98,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> Update(Guid id, [FromBody] ApprovalDocumentDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalDocumentResponseDto>>> Update(Guid id, [FromBody] ApprovalDocumentDto dto)
     {
         try
         {
@@ -115,7 +115,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpPatch("{id:guid}/status")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalInstanceStatusRequestDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalDocumentResponseDto>>> UpdateStatus(Guid id, [FromBody] UpdateApprovalDocumentStatusRequestDto dto)
     {
         try
         {
@@ -132,7 +132,7 @@ public class ApprovalDocumentController : BaseController
     }
 
     [HttpPatch("{id:guid}/current-step")]
-    public async Task<ActionResult<ApiResponseDto<ApprovalResponseDto>>> UpdateCurrentStep(Guid id, [FromBody] UpdateApprovalInstanceCurrentStepRequestDto dto)
+    public async Task<ActionResult<ApiResponseDto<ApprovalDocumentResponseDto>>> UpdateCurrentStep(Guid id, [FromBody] UpdateApprovalDocumentCurrentStepRequestDto dto)
     {
         try
         {

@@ -22,7 +22,7 @@ namespace Infrastructure.Services
 
         public async Task<BarcodeResponseDto> GenerateOneAsync(BarcodeRequestDto request, CancellationToken cancellationToken)
         {
-            var base64 = BarcodeHelper.GenerateByHelper(request);
+            var base64 = await Task.Run(() => BarcodeHelper.GenerateByHelper(request), cancellationToken);
             if (string.IsNullOrEmpty(base64)) throw new Exception("Failed to generate barcode");
             return new BarcodeResponseDto
             {

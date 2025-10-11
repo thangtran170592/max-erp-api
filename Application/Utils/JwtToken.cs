@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Common.Security;
 using Application.Dtos;
 using Core.Entities;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +20,22 @@ namespace Application.Utils
                 new(JwtRegisteredClaimNames.Sid, user.Id.ToString()),
                 new(JwtRegisteredClaimNames.Sub, user.UserName ?? string.Empty),
             };
+
+            if (user.DepartmentId.HasValue)
+            {
+                claims.Add(new Claim(CustomClaimNames.DepartmentId, user.DepartmentId.Value.ToString()));
+            }
+            if (user.PositionId.HasValue)
+            {
+                claims.Add(new Claim(CustomClaimNames.PositionId, user.PositionId.Value.ToString()));
+            }
+
             claims.AddRange(roles.Select(role => new Claim("role", role)));
             var token = new JwtSecurityToken(
             claims: claims,
             issuer: config["Jwt:Issuer"],
             audience: config["Jwt:Audience"],
-            expires: DateTime.UtcNow.AddMinutes(5),
+            expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials);
             var tokenHandler = new JwtSecurityTokenHandler().WriteToken(token);
             return new TokenResponseDto() { Token = tokenHandler, Expiration = token.ValidTo };
@@ -33,7 +44,11 @@ namespace Application.Utils
         public static TokenResponseDto GenerateRefreshToken()
         {
             var token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-            return new TokenResponseDto() { Token = token, Expiration = DateTime.UtcNow.AddMinutes(30) };
+            return new TokenResponseDto
+            {
+                Token = token,
+                Expiration = DateTime.UtcNow.AddDays(30)
+            };
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Core.Entities
         public int StepOrder { get; set; }
         public Guid? ApproverId { get; set; }
         public DateTime? ApprovedAt { get; set; }
-        public ApprovalStatus Status { get; set; }
-        public string? Reason { get; set; }
+        public ApprovalStatus ApprovalStatus { get; set; }
+        public string? Comment { get; set; }
     }
 }

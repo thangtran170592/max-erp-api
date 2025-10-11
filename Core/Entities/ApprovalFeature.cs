@@ -10,6 +10,5 @@ namespace Core.Entities
         public ApprovalConfig ApprovalConfig { get; set; } = null!;
         public bool Status { get; set; } = true;
         public ICollection<ApprovalStep> ApprovalSteps { get; set; } = [];
-
     }
 }
